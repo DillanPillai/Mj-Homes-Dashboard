@@ -33,7 +33,7 @@ def validate_data(df):
         print(" Data issues found. Please clean the data.")
 
 def main():
-    file_path = "Backend/data_processing/MockData.xlsx"
+    file_path = "Backend/data_processing/DataValidation.xlsx"
     df = load_property_data(file_path)
     if df is not None:
         validate_data(df)
