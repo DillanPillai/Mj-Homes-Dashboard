@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -62,14 +61,7 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				},
-				// New MJ Home theme colors
-				mjhome: {
-					orange: '#F5A623',
-					'deep-orange': '#E8663D',
-					yellow: '#F8CB5C',
-					cream: '#FFF8E8',
-				},
+				}
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

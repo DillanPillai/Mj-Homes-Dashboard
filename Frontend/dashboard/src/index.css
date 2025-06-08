@@ -1,97 +1,92 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    /* Original light theme with MJ HOME colors */
-    --background: 40 100% 97%;  /* Cream background */
-    --foreground: 35 10% 20%;   /* Dark text */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
 
-    --card: 40 100% 97%;        /* Cream cards */
-    --card-foreground: 35 10% 20%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 35 10% 20%;
+    --popover-foreground: 222.2 84% 4.9%;
 
-    /* Primary is now orange */
-    --primary: 36 91% 55%;      /* MJ HOME orange */
-    --primary-foreground: 0 0% 100%;
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
 
-    /* Secondary is now yellow */
-    --secondary: 41 93% 67%;    /* MJ HOME yellow */
-    --secondary-foreground: 35 10% 20%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
 
-    --muted: 40 50% 95%;
-    --muted-foreground: 35 5% 45%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
 
-    /* Accent is now deep orange */
-    --accent: 14 77% 57%;       /* MJ HOME deep orange */
-    --accent-foreground: 0 0% 100%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 36 30% 80%;
-    --input: 36 30% 80%;
-    --ring: 36 91% 55%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
-    /* Sidebar customization with cream/orange theme */
-    --sidebar-background: 40 100% 97%; /* Cream sidebar */
-    --sidebar-foreground: 35 10% 20%;
-    --sidebar-primary: 36 91% 55%;     /* MJ HOME orange */
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 14 77% 57%;      /* MJ HOME deep orange */
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 41 50% 85%;
-    --sidebar-ring: 36 91% 65%;
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
-    /* Dark theme colors - keep but adjust to work better with MJ HOME colors */
-    --background: 35 10% 10%;
-    --foreground: 40 25% 95%;
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
 
-    --card: 35 10% 15%;
-    --card-foreground: 40 25% 95%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 35 10% 15%;
-    --popover-foreground: 40 25% 95%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
 
-    /* Primary is still orange but brighter in dark mode */
-    --primary: 36 95% 65%;
-    --primary-foreground: 0 0% 10%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
 
-    /* Secondary is still yellow but adjusted for dark mode */
-    --secondary: 41 90% 60%;
-    --secondary-foreground: 0 0% 10%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 35 20% 20%;
-    --muted-foreground: 40 15% 70%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
 
-    /* Accent is still deep orange but brighter in dark mode */
-    --accent: 14 85% 65%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 35 15% 25%;
-    --input: 35 15% 25%;
-    --ring: 36 95% 65%;
-    
-    /* Dark mode sidebar */
-    --sidebar-background: 35 20% 15%;
-    --sidebar-foreground: 40 25% 95%;
-    --sidebar-primary: 36 95% 65%;
-    --sidebar-primary-foreground: 0 0% 10%;
-    --sidebar-accent: 14 85% 65%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 35 15% 25%;
-    --sidebar-ring: 36 95% 65%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
 
@@ -102,78 +97,5 @@
 
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "ss01", "ss02", "cv01", "cv02", "cv03";
-  }
-}
-
-@layer components {
-  .glass-card {
-    @apply bg-white/90 dark:bg-black/80 backdrop-blur-md border border-white/20 dark:border-white/10 shadow-xl transition-all hover:shadow-lg;
-  }
-  
-  .gradient-bg {
-    @apply bg-gradient-to-br from-background to-secondary dark:from-background dark:to-secondary/30;
-  }
-  
-  .nav-item {
-    @apply flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors;
-  }
-  
-  .nav-item-active {
-    @apply bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground;
-  }
-  
-  .dashboard-card {
-    @apply p-6 rounded-xl border border-border bg-card shadow-sm transition-all hover:shadow-md;
-  }
-  
-  /* New MJ HOME specific components */
-  .mjhome-button {
-    @apply bg-mjhome-orange text-white px-4 py-2 rounded-full hover:bg-mjhome-deep-orange transition-colors;
-  }
-  
-  .mjhome-card {
-    @apply bg-mjhome-cream border border-mjhome-yellow/30 rounded-xl p-6 shadow-sm;
-  }
-}
-
-@layer utilities {
-  .text-gradient {
-    @apply bg-gradient-to-br from-primary via-accent to-primary bg-clip-text text-transparent;
-  }
-  
-  .animate-fade-in {
-    animation: fadeIn 0.5s ease-out forwards;
-  }
-  
-  .animate-slide-in {
-    animation: slideIn 0.4s ease-out forwards;
-  }
-  
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-  @keyframes slideIn {
-    from {
-      opacity: 0;
-      transform: translateX(-20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-  
-  /* MJ HOME specific utilities */
-  .mjhome-gradient {
-    @apply bg-gradient-to-br from-mjhome-orange to-mjhome-deep-orange;
   }
 }

@@ -1,9 +1,11 @@
-# backend/data_scraper/scraper.py
+import pandas as pd
 
 def scrape_listings():
-    # Placeholder for actual scraping (e.g., Trade Me, Auckland Council)
-    print("Scraping mock listings...")
-    return [
-        {"title": "Sunny 2BR Apartment", "location": "Auckland", "price": 750000},
-        {"title": "Luxury Villa", "location": "Christchurch", "price": 1200000},
-    ]
+    print("Loading mock listings from Excel...")
+    path = "Backend/data_processing/MockData.xlsx"
+    try:
+        df = pd.read_excel(path)
+        return df
+    except Exception as e:
+        print(f"Error loading Excel file: {e}")
+        return pd.DataFrame()  # return empty to avoid pipeline crash
