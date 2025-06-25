@@ -1,13 +1,12 @@
-
 import { CheckCircle, Clock, AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export const DatasetStatus = () => {
   const datasets = [
     { name: 'TradeMe', status: 'approved', icon: CheckCircle, color: 'text-green-600' },
-    { name: 'Facebook Insights', status: 'pending', icon: Clock, color: 'text-yellow-600' },
-    { name: 'Google Analytics', status: 'approved', icon: CheckCircle, color: 'text-green-600' },
-    { name: 'Instagram Business', status: 'review', icon: AlertTriangle, color: 'text-orange-600' },
+    { name: 'Tenancy Services', status: 'pending', icon: Clock, color: 'text-yellow-600' },
+    { name: 'Stats NZ', status: 'approved', icon: CheckCircle, color: 'text-green-600' },
+    { name: 'Auckland Council', status: 'review', icon: AlertTriangle, color: 'text-orange-600' },
   ];
 
   return (

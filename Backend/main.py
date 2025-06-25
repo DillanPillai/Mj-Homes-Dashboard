@@ -19,7 +19,7 @@ def main():
     transformed_data = transform_data(cleaned_data)
 
     # Step 4: Predict Rent Price
-    predicted_data = predict_rent(transformed_data)  # ⬅️ ML prediction step
+    predicted_data = predict_rent(transformed_data)  
 
     # Step 5: Save
     save_to_db(predicted_data)
