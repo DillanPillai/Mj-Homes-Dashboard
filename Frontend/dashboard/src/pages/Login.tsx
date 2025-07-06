@@ -46,16 +46,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center px-4 relative">
-      {/* AUT Logo - top-left */}
-      <div className="absolute top-6 left-6">
-        <img
-          src="/AUT.jpg"
-          alt="AUT University"
-          className="h-16 w-auto object-contain"
-        />
-      </div>
-
+    <div className="min-h-screen bg-white flex items-center justify-center px-4">
       <div className="w-full max-w-md space-y-6">
         {/* MJ HOME Image Logo */}
         <div className="text-center">
@@ -74,6 +65,7 @@ const Login = () => {
               Access your real estate analytics dashboard
             </CardDescription>
           </CardHeader>
+
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="relative">
@@ -90,6 +82,7 @@ const Login = () => {
                   disabled={isLoading}
                 />
               </div>
+
               <div className="relative">
                 <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
                 <Input
@@ -104,6 +97,7 @@ const Login = () => {
                   disabled={isLoading}
                 />
               </div>
+
               <Button
                 type="submit"
                 className="w-full bg-[#F39200] hover:bg-[#dd7e00] text-white rounded-md"
@@ -118,14 +112,21 @@ const Login = () => {
                   'Sign In'
                 )}
               </Button>
+
+              {/* Credit + AUT logo at bottom */}
+              <div className="text-center mt-4 space-y-1">
+                <p className="text-xs text-gray-600">
+                  © 2025 – Developed by AUT students for academic R&D purposes. Internal use only.
+                </p>
+                <img
+                  src="/AUT.jpg"
+                  alt="AUT University"
+                  className="mx-auto h-12 w-auto object-contain"
+                />
+              </div>
             </form>
           </CardContent>
         </Card>
-
-        {/* Credit Line */}
-        <p className="text-xs text-muted-foreground text-center mt-2">
-          © 2025 – Developed by AUT students for academic R&D purposes. Internal use only.
-        </p>
       </div>
     </div>
   );
