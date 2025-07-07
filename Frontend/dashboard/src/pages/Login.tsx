@@ -1,36 +1,44 @@
-
-import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
-import MJHomeLogo from "@/components/MJHomeLogo";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Mail, Lock, Loader2 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
   const { login } = useAuth();
-  const navigate = useNavigate();
+  const { toast } = useToast();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      await login(email, password);
+      const success = await login(loginData.email, loginData.password);
       toast({
-        title: "Login successful",
-        description: "Welcome back!",
+        title: success ? 'Login successful' : 'Login failed',
+        description: success
+          ? 'Welcome to MJ Home Dashboard!'
+          : 'Please check your credentials and try again.',
+        variant: success ? 'default' : 'destructive',
+        className: success
+          ? 'bg-green-50 border-green-200 text-green-800'
+          : '',
       });
-      navigate("/");
-    } catch (error) {
+    } catch {
       toast({
-        variant: "destructive",
-        title: "Login failed",
-        description: "Please check your credentials and try again.",
+        title: 'Login error',
+        description: 'An error occurred during login.',
+        variant: 'destructive',
       });
     } finally {
       setIsLoading(false);
@@ -38,71 +46,87 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-mjhome-cream flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="bg-white p-8 rounded-xl shadow-lg border border-mjhome-yellow/20">
-          <div className="flex flex-col items-center mb-8">
-            <MJHomeLogo className="mb-6" />
-            <h2 className="text-2xl font-semibold text-center text-mjhome-deep-orange">Welcome back</h2>
-            <p className="text-muted-foreground text-center mt-2">
-              Enter your credentials to access your account
-            </p>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium">
-                Email
-              </label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@example.com"
-                required
-                className="border-mjhome-orange/30 focus:border-mjhome-orange"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label htmlFor="password" className="text-sm font-medium">
-                  Password
-                </label>
-                <a href="#" className="text-sm text-mjhome-orange hover:underline">
-                  Forgot password?
-                </a>
-              </div>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                required
-                className="border-mjhome-orange/30 focus:border-mjhome-orange"
-              />
-            </div>
-
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-mjhome-orange hover:bg-mjhome-deep-orange text-white"
-            >
-              {isLoading ? "Signing In..." : "Sign In"}
-            </Button>
-          </form>
-
-          <div className="mt-6 text-center text-sm">
-            <p>
-              Don't have an account?{" "}
-              <a href="#" className="text-mjhome-orange hover:underline font-medium">
-                Sign up
-              </a>
-            </p>
-          </div>
+    <div className="min-h-screen bg-white flex items-center justify-center px-4">
+      <div className="w-full max-w-md space-y-6">
+        {/* MJ HOME Image Logo */}
+        <div className="text-center">
+          <img
+            src="/Logo.JPG"
+            alt="MJ HOME"
+            className="mx-auto h-20 w-auto object-contain"
+          />
         </div>
+
+        {/* Login Card */}
+        <Card className="bg-[#E9EBEE] rounded-md shadow-sm border-0">
+          <CardHeader className="text-center">
+            <CardTitle>Welcome</CardTitle>
+            <CardDescription>
+              Access your real estate analytics dashboard
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent>
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div className="relative">
+                <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                <Input
+                  type="email"
+                  placeholder="Email Address"
+                  className="pl-10"
+                  value={loginData.email}
+                  onChange={(e) =>
+                    setLoginData({ ...loginData, email: e.target.value })
+                  }
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                <Input
+                  type="password"
+                  placeholder="Password"
+                  className="pl-10"
+                  value={loginData.password}
+                  onChange={(e) =>
+                    setLoginData({ ...loginData, password: e.target.value })
+                  }
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full bg-[#F39200] hover:bg-[#dd7e00] text-white rounded-md"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    Signing In...
+                  </>
+                ) : (
+                  'Sign In'
+                )}
+              </Button>
+
+              {/* Credit + AUT logo at bottom */}
+              <div className="text-center mt-4 space-y-1">
+                <p className="text-xs text-gray-600">
+                  © 2025 – Developed by AUT students for academic R&D purposes. Internal use only.
+                </p>
+                <img
+                  src="/AUT.jpg"
+                  alt="AUT University"
+                  className="mx-auto h-12 w-auto object-contain"
+                />
+              </div>
+            </form>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
