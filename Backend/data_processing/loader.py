@@ -1,12 +1,17 @@
 import pandas as pd
 from sqlalchemy import create_engine
+from dotenv import load_dotenv
+import os
 
-# PostgreSQL connection config
-DB_NAME = "mjhome"
-DB_USER = "postgres"
-DB_PASSWORD = "pass123"  # <- enter your actual password here
-DB_HOST = "localhost"
-DB_PORT = "5432"
+# Load environment variables from .env
+load_dotenv()
+
+# PostgreSQL connection config from .env
+DB_NAME = os.getenv("DB_NAME")
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_HOST = os.getenv("DB_HOST", "localhost")
+DB_PORT = os.getenv("DB_PORT", "5432")
 
 def save_to_db(data: pd.DataFrame):
     try:
@@ -14,6 +19,6 @@ def save_to_db(data: pd.DataFrame):
             f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
         )
         data.to_sql("properties", engine, if_exists="replace", index=False)
-        print("✅ Data saved to PostgreSQL successfully.")
+        print("Data saved to PostgreSQL successfully.")
     except Exception as e:
-        print("❌ Error saving to PostgreSQL:", e)
+        print("Error saving to PostgreSQL:", e)
