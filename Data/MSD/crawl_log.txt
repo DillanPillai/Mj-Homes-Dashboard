@@ -1,0 +1,7 @@
+[2025-07-11 20:49:36] === Starting MSD Housing Report Crawl ===
+[2025-07-11 20:49:37] Downloaded: monthly-housing-report-june-2025.pdf
+[2025-07-11 20:49:38] Downloaded: eh-national-monthly-june-2025.xlsx
+[2025-07-11 20:49:39] Downloaded: sh-national-monthly-june-2025.xlsx
+[2025-07-11 20:49:40] Downloaded: monthly-housing-update-technical-support-document.pdf
+[2025-07-11 20:49:41] === Crawl Completed ===
+
