@@ -1,30 +1,41 @@
-# backend/main.py
+from dotenv import load_dotenv
+import os
 
-from data_scraper.scraper import scrape_listings
-from data_processing.cleaner import clean_data
-from data_processing.transformer import transform_data
-from data_processing.predictor import predict_rent  # ⬅️ New import
-from data_processing.loader import save_to_db
+load_dotenv()
 
-def main():
-    print("Starting MJ Home backend pipeline...")
 
-    # Step 1: Scrape
-    raw_data = scrape_listings()
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-    # Step 2: Clean
-    cleaned_data = clean_data(raw_data)
+from Backend.pipeline_main import main as run_pipeline
+from Backend.data_processing.loader import save_to_db, fetch_processed_data
+from Backend.data_scraper.scraper import scrape_listings
+from Backend.data_processing.cleaner import clean_data
+from Backend.data_processing.predictor import predict_rent
 
-    # Step 3: Transform
-    transformed_data = transform_data(cleaned_data)
+app = FastAPI(title="MJ Home API")
 
-    # Step 4: Predict Rent Price
-    predicted_data = predict_rent(transformed_data)  
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-    # Step 5: Save
-    save_to_db(predicted_data)
+@app.get("/")
+def read_root():
+    return {"message": "MJ Home API is live"}
 
-    print("Pipeline completed successfully!")
+@app.post("/run-pipeline")
+def run_pipeline_endpoint():
+    try:
+        run_pipeline()
+        return {"status": "Pipeline completed successfully"}
+    except Exception as e:
+        return {"status": "Error", "detail": str(e)}
 
-if __name__ == "__main__":
-    main()
+@app.get("/data")
+def get_data(limit: int = 100):
+    data = fetch_processed_data(limit)
+    return {"status": "success", "data": data}
