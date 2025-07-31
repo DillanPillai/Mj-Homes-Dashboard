@@ -9,6 +9,7 @@ import os
 from datetime import datetime
 import json
 import io
+import pickle
 
 app = Flask(__name__)
 CORS(app)  # Enable Cross-Origin Resource Sharing
@@ -49,6 +50,9 @@ scraping_jobs = [
         "interest": "low"
     }
 ]
+
+with open('rent_model.pkl', 'rb') as f:
+    model = pickle.load(f)
 
 @app.route('/api/scrape', methods=['POST'])
 def scrape():
@@ -92,6 +96,13 @@ def download_job_data(job_id):
         return jsonify({"message": f"Data for job {job_id} exported for Power BI", "format": "powerbi"}), 200
     else:
         return jsonify({"error": "Unsupported format type"}), 400
+
+@app.route('/predict_rent', methods=['POST'])
+def predict_rent():
+    data = request.json
+    df = pd.DataFrame([data])
+    pred = model.predict(df)[0]
+    return jsonify({'predicted_rent': round(pred, 2)})
 
 def create_csv_response(data, job_id):
     """Create a CSV response from the provided data"""
