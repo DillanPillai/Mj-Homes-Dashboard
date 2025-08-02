@@ -12,6 +12,9 @@ from Backend.data_processing.loader import save_to_db, fetch_processed_data
 from Backend.data_scraper.scraper import scrape_listings
 from Backend.data_processing.cleaner import clean_data
 from Backend.data_processing.predictor import predict_rent
+#Added to test property clusters
+from Backend.data_processing.clustering import cluster_properties
+
 
 app = FastAPI(title="MJ Home API")
 
@@ -39,3 +42,11 @@ def run_pipeline_endpoint():
 def get_data(limit: int = 100):
     data = fetch_processed_data(limit)
     return {"status": "success", "data": data}
+
+#Added to test property clusters
+# Endpoint for testing property clustering functionality, this fetches processed data, applies clustering, and returns clustered results
+@app.get("/api/clusters")
+def get_clusters(limit: int = 300):
+    raw_data = fetch_processed_data(limit)
+    clustered = cluster_properties(raw_data)
+    return clustered
