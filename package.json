@@ -18,6 +18,7 @@
   "homepage": "https://github.com/DillanPillai/Mj-Homes-Dashboard#readme",
   "description": "",
   "dependencies": {
+    "lucide-react": "^0.534.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "xlsx": "^0.18.5"

@@ -1,8 +1,8 @@
-
 import { Home, TrendingUp, Clock, DollarSign } from 'lucide-react';
 import { KPICard } from '../KPICard';
 import { ChartCard } from '../ChartCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { RentPredictSection } from './RentPredictSection';
 
 export const RentalMarketSection = () => {
   return (
@@ -42,6 +42,8 @@ export const RentalMarketSection = () => {
           icon={Home}
         />
       </div>
+
+      <RentPredictSection />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <ChartCard
