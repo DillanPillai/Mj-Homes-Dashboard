@@ -1,7 +1,8 @@
-from Backend.data_scraper.scraper import scrape_listings
-from Backend.data_processing.cleaner import clean_data
-from Backend.data_processing.predictor import predict_rent
-from Backend.data_processing.loader import save_to_db
+from data_scraper.scraper import scrape_listings
+from data_processing.cleaner import clean_data
+from data_processing.predictor import predict_rent
+from data_processing.loader import save_to_db
+
 
 def main():
     print("Starting MJ Home backend pipeline...")
