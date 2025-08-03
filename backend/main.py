@@ -2,9 +2,11 @@ from dotenv import load_dotenv
 import os
 import shutil
 import logging
+import sys
 
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 
 # Corrected imports
 from pipeline_main import main as run_pipeline
@@ -95,3 +97,16 @@ async def upload_data(file: UploadFile = File(...)):
             "status": "error",
             "message": f"Upload or retraining failed: {str(e)}"
         }
+
+# Serve favicon to avoid 404
+@app.get("/favicon.ico")
+async def favicon():
+    return FileResponse("static/favicon.ico")
+
+# Show links to docs when running manually
+if __name__ == "__main__":
+    import uvicorn
+    print("MJ Home API Docs available at:")
+    print("http://127.0.0.1:8000/docs")
+    print("http://localhost:8000/docs")
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
