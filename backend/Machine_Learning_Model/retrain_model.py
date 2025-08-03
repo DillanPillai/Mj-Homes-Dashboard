@@ -8,7 +8,7 @@ from sklearn.metrics import mean_squared_error
 def retrain_rent_model():
     try:
         # Construct path to dataset
-        file_path = os.path.join("Backend", "data_processing", "MockData.xlsx")
+        file_path = os.path.join("backend", "data_processing", "MockData.xlsx")
         if not os.path.exists(file_path):
             return "Error: MockData.xlsx not found."
 
@@ -53,7 +53,7 @@ def retrain_rent_model():
         mse = mean_squared_error(y_test, predictions)
 
         # Save trained model
-        model_path = os.path.join("Backend", "Machine_Learning_Model", "rental_model.pkl")
+        model_path = os.path.join("backend", "Machine_Learning_Model", "rental_model.pkl")
         joblib.dump(model, model_path)
 
         return f"Model retrained and saved successfully! MSE: {mse:.2f}"

@@ -2,7 +2,7 @@ import pandas as pd
 import joblib
 
 # Load trained model
-model = joblib.load('./Backend/Machine_Learning_Model/rental_model.pkl')
+model = joblib.load('Machine_Learning_Model/rental_model.pkl')
 
 def predict_rent(data: pd.DataFrame) -> pd.DataFrame:
     # Debug log (optional)

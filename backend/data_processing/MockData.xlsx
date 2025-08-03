@@ -1,0 +1,31 @@
+Property ID,Address,Suburb,Bedrooms,Bathrooms,Property Type,Weekly Rent ($NZD),Parking,Listing Type,Days on Market,Agency,Reason for Extended Listing
+R001,10 Tui Road,Manurewa,3,1,House,550,1,Rent,12,Harcourts,Competitive market with similar listings
+R002,25A Mahia Road,Manurewa,2,1,Unit,480,1,Rent,8,Ray White,Limited demand for smaller units in area
+R003,15B Great South Road,Papakura,4,2,House,620,2,Rent,15,Barfoot & Thompson,Higher rent compared to similar properties
+R004,8 Karaka Street,Otara,3,1,House,510,1,Rent,20,LJ Hooker,Property requires maintenance
+R005,12 Mangere Road,Mangere,2,1,Apartment,470,0,Rent,5,Professionals,Recent listing
+R006,7 Hill Road,Manukau,1,1,Studio,400,0,Rent,3,City Rentals,Recent listing
+R007,18A Clevedon Road,Papakura,3,2,Townhouse,580,1,Rent,10,Bayleys,Niche property type
+R008,22 Browns Road,Manurewa,4,2,House,630,2,Rent,7,Harcourts,Recent listing
+R009,5A Massey Road,Mangere,2,1,Unit,460,1,Rent,14,Ray White,Limited demand for smaller units in area
+R010,3 Station Road,Otara,3,1,House,520,1,Rent,9,Barfoot & Thompson,Competitive market with similar listings
+R011,11 Tui Road,Manurewa,3,1,House,570,1,Rent,13,Harcourts,Competitive market with similar listings
+R012,12 Mahia Road,Manurewa,2,1,Unit,480,1,Rent,10,Ray White,Limited demand for smaller units in area
+R013,13 Great South Road,Papakura,4,2,House,630,2,Rent,18,Barfoot & Thompson,Higher rent compared to similar properties
+R014,14 Karaka Street,Otara,3,1,House,530,1,Rent,24,LJ Hooker,Property requires maintenance
+R015,15 Mangere Road,Mangere,2,1,Apartment,470,0,Rent,5,Professionals,Recent listing
+R016,16 Hill Road,Manukau,1,1,Studio,410,0,Rent,4,City Rentals,Recent listing
+R017,17 Clevedon Road,Papakura,3,2,Townhouse,600,1,Rent,12,Bayleys,Niche property type
+R018,18 Browns Road,Manurewa,4,2,House,630,2,Rent,10,Harcourts,Recent listing
+R019,19 Massey Road,Mangere,2,1,Unit,470,1,Rent,18,Ray White,Limited demand for smaller units in area
+R020,20 Station Road,Otara,3,1,House,540,1,Rent,9,Barfoot & Thompson,Competitive market with similar listings
+R021,21 Tui Road,Manurewa,3,1,House,550,1,Rent,13,Harcourts,Competitive market with similar listings
+R022,22 Mahia Road,Manurewa,2,1,Unit,490,1,Rent,10,Ray White,Limited demand for smaller units in area
+R023,23 Great South Road,Papakura,4,2,House,640,2,Rent,18,Barfoot & Thompson,Higher rent compared to similar properties
+R024,24 Karaka Street,Otara,3,1,House,510,1,Rent,24,LJ Hooker,Property requires maintenance
+R025,25 Mangere Road,Mangere,2,1,Apartment,480,0,Rent,5,Professionals,Recent listing
+R026,26 Hill Road,Manukau,1,1,Studio,420,0,Rent,4,City Rentals,Recent listing
+R027,27 Clevedon Road,Papakura,3,2,Townhouse,580,1,Rent,12,Bayleys,Niche property type
+R028,28 Browns Road,Manurewa,4,2,House,640,2,Rent,10,Harcourts,Recent listing
+R029,29 Massey Road,Mangere,2,1,Unit,480,1,Rent,18,Ray White,Limited demand for smaller units in area
+R030,30 Station Road,Otara,3,1,House,520,1,Rent,9,Barfoot & Thompson,Competitive market with similar listings
