@@ -4,17 +4,20 @@ import shutil
 import logging
 import sys
 
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
+from pydantic import BaseModel
 
-# Corrected imports
+# Custom module imports
 from pipeline_main import main as run_pipeline
 from data_processing.loader import save_to_db, fetch_processed_data
 from data_scraper.scraper import scrape_listings
 from data_processing.cleaner import clean_data
 from data_processing.predictor import predict_rent
 from Machine_Learning_Model.retrain_model import retrain_rent_model
+from Machine_Learning_Model.predict_logger import log_prediction
+from Machine_Learning_Model.rental_price_model import load_model, prepare_input_dataframe
 
 # Load environment variables
 load_dotenv()
@@ -97,6 +100,33 @@ async def upload_data(file: UploadFile = File(...)):
             "status": "error",
             "message": f"Upload or retraining failed: {str(e)}"
         }
+
+# Model input schema for prediction
+class RentalInput(BaseModel):
+    bedrooms: int
+    bathrooms: int
+    floor_area: float
+    suburb: str
+
+# Predict rental price from input
+@app.post("/predict", summary="Predict rental price from listing data", description="Submit property features to receive a predicted rental price.")
+async def predict_rental_price(input_data: RentalInput, request: Request):
+    try:
+        model = load_model()
+        if model is None:
+            raise HTTPException(status_code=500, detail="Model not loaded")
+
+        df_input = prepare_input_dataframe(input_data)
+        prediction = model.predict(df_input)[0]
+
+        user_id = request.headers.get("X-User-ID", "anonymous")
+
+        log_prediction(input_data.dict(), prediction, user_id)
+
+        return {"predicted_rent": round(prediction, 2)}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 # Serve favicon to avoid 404
 @app.get("/favicon.ico")
