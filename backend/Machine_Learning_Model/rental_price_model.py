@@ -1,45 +1,56 @@
-import pandas as pd
-from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_squared_error
+import os
 import joblib
+import pandas as pd
 
-# Load Excel data
-df = pd.read_excel('./Backend/data_processing/MockData.xlsx')
+# Constants
+MODEL_PATH = os.path.join("Machine_Learning_Model", "rental_model.pkl")
+DATA_PATH = os.path.join("data_processing", "MockData.xlsx")
 
-# Rename columns to match what the model expects
-df.rename(columns={
-    'Bedrooms': 'bedrooms',
-    'Bathrooms': 'bathrooms',
-    'Suburb': 'suburb',
-    'Weekly Rent ($NZD)': 'rent_price'
-}, inplace=True)
+# Load the trained model from disk
+def load_model():
+    if not os.path.exists(MODEL_PATH):
+        return None
+    return joblib.load(MODEL_PATH)
 
-# Drop rows with missing essential values
-df.dropna(subset=['bedrooms', 'bathrooms', 'rent_price', 'suburb'], inplace=True)
+# Dynamically extract the suburb one-hot columns used during training
+def get_model_suburb_columns_from_data():
+    try:
+        df = pd.read_excel(DATA_PATH, engine="openpyxl")
+        if 'Suburb' not in df.columns:
+            return []
 
-# Assign dummy value for floor_area (since it's not in your file)
-df['floor_area'] = 100  # Placeholder value — improve later with estimation
+        # Drop NA and strip spaces
+        df = df.dropna(subset=["Suburb"])
+        df['Suburb'] = df['Suburb'].astype(str).str.strip()
 
-# One-hot encode categorical suburb
-df = pd.get_dummies(df, columns=['suburb'], drop_first=True)
+        # One-hot encode to get actual training columns
+        suburb_dummies = pd.get_dummies(df['Suburb'], prefix="suburb")
+        return sorted(suburb_dummies.columns.tolist())
+    except Exception as e:
+        print(f"[ERROR] Failed to extract suburb columns: {e}")
+        return []
 
-# Define input features and target
-X = df[['bedrooms', 'bathrooms', 'floor_area'] + [col for col in df.columns if col.startswith('suburb_')]]
-y = df['rent_price']
+# Convert incoming input into a model-compatible DataFrame
+def prepare_input_dataframe(input_data):
+    df = pd.DataFrame([input_data.dict()])
 
-# Train/test split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    # Ensure floor_area is present
+    if 'floor_area' not in df.columns:
+        df['floor_area'] = 100
 
-# Train model
-model = LinearRegression()
-model.fit(X_train, y_train)
+    # Suburb handling
+    all_suburb_columns = get_model_suburb_columns_from_data()
+    current_suburb = df['suburb'][0].strip()
+    
+    for col in all_suburb_columns:
+        suburb_name = col.replace("suburb_", "")
+        df[col] = 1 if current_suburb == suburb_name else 0
 
-# Evaluate
-predictions = model.predict(X_test)
-mse = mean_squared_error(y_test, predictions)
-print(f"Model trained. MSE: {mse:.2f}")
+    # Drop original 'suburb' column
+    df.drop(columns=["suburb"], inplace=True)
 
-# Save trained model
-joblib.dump(model, './Backend/Machine_Learning_Model/rental_model.pkl')
-print("Model saved to './Backend/Machine_Learning_Model/rental_model.pkl'")
+    # Ensure column order matches model training
+    expected_columns = ['bedrooms', 'bathrooms', 'floor_area'] + all_suburb_columns
+    df = df.reindex(columns=expected_columns, fill_value=0)
+
+    return df
