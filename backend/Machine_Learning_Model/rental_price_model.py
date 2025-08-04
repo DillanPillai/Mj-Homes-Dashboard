@@ -2,47 +2,47 @@ import os
 import joblib
 import pandas as pd
 
-# Load the trained rental model from disk
-def load_model():
-    model_path = os.path.join("backend", "Machine_Learning_Model", "rental_model.pkl")
-    if not os.path.exists(model_path):
-        return None
-    return joblib.load(model_path)
+# Constants
+MODEL_PATH = os.path.join("backend", "Machine_Learning_Model", "rental_model.pkl")
+DATA_PATH = os.path.join("backend", "data_processing", "MockData.xlsx")
 
-# Prepare the input for prediction
+# Load the trained model from disk
+def load_model():
+    if not os.path.exists(MODEL_PATH):
+        return None
+    return joblib.load(MODEL_PATH)
+
+# Load all suburb columns from the dataset to match one-hot encoding
+def get_model_suburb_columns():
+    try:
+        df = pd.read_excel(DATA_PATH, engine="openpyxl")
+        if 'Suburb' not in df.columns:
+            return []
+
+        # Clean column and drop NA
+        suburbs = df['Suburb'].dropna().unique()
+        return sorted([f"suburb_{s.strip()}" for s in suburbs])
+    except Exception as e:
+        print(f"[ERROR] Failed to load suburbs: {e}")
+        return []
+
+# Convert incoming input into a model-compatible DataFrame
 def prepare_input_dataframe(input_data):
-    """
-    Converts input JSON into a one-hot encoded DataFrame
-    to match the model's expected input format.
-    """
-    # Convert to DataFrame
     df = pd.DataFrame([input_data.dict()])
 
-    # Add default floor_area if missing
+    # Handle missing floor_area
     if 'floor_area' not in df.columns:
         df['floor_area'] = 100
 
-    # Match model training suburb columns
-    for suburb_col in get_model_suburb_columns():
-        df[suburb_col] = 1 if f"suburb_{df['suburb'][0]}" == suburb_col else 0
+    # One-hot encode suburb using training-time format
+    all_suburb_columns = get_model_suburb_columns()
+    current_suburb = df['suburb'][0]
+
+    for col in all_suburb_columns:
+        suburb_name = col.replace("suburb_", "")
+        df[col] = 1 if current_suburb == suburb_name else 0
 
     # Drop original suburb
-    df.drop(columns=['suburb'], inplace=True)
+    df.drop(columns=["suburb"], inplace=True)
 
     return df
-
-# List of suburbs used in model training (based on training data)
-def get_model_suburb_columns():
-    return [
-        'suburb_Auckland Central Business District',
-        'suburb_Birkenhead',
-        'suburb_Epsom',
-        'suburb_Glenfield',
-        'suburb_Henderson',
-        'suburb_Manukau',
-        'suburb_Mt Roskill',
-        'suburb_New Lynn',
-        'suburb_Pakuranga',
-        'suburb_Remuera',
-        'suburb_Takapuna'
-    ]
