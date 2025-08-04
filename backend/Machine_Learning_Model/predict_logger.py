@@ -2,7 +2,7 @@ import csv
 import os
 from datetime import datetime
 
-# File where predictions will be saved
+# File where predictions will be stored and saved
 LOG_FILE = os.path.join(os.path.dirname(__file__), "prediction_logs.csv")
 
 def log_prediction(input_data: dict, prediction: float, user_id: str = "anonymous"):
