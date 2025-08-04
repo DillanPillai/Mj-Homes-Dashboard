@@ -5,7 +5,7 @@ from sklearn.metrics import mean_squared_error
 import joblib
 
 # Load Excel data
-df = pd.read_excel('./Backend/data_processing/MockData.xlsx')
+df = pd.read_excel('./backend/data_processing/MockData.xlsx')
 
 # Rename columns to match what the model expects
 df.rename(columns={
@@ -41,5 +41,5 @@ mse = mean_squared_error(y_test, predictions)
 print(f"Model trained. MSE: {mse:.2f}")
 
 # Save trained model
-joblib.dump(model, './Backend/Machine_Learning_Model/rental_model.pkl')
-print("Model saved to './Backend/Machine_Learning_Model/rental_model.pkl'")
+joblib.dump(model, './backend/Machine_Learning_Model/rental_model.pkl')
+print("Model saved to './backend/Machine_Learning_Model/rental_model.pkl'")
