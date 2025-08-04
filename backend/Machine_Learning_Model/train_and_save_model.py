@@ -7,7 +7,7 @@ import os
 
 # Load Excel data
 file_path = os.path.join("data_processing", "MockData.xlsx")
-df = pd.read_excel(file_path)
+df = pd.read_excel(file_path, engine='openpyxl')
 
 # Rename columns
 df.rename(columns={
