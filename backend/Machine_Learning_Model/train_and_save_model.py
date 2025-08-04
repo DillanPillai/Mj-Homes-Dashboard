@@ -40,9 +40,9 @@ model.fit(X_train, y_train)
 # Evaluate
 predictions = model.predict(X_test)
 mse = mean_squared_error(y_test, predictions)
-print(f"✅ Model trained. MSE: {mse:.2f}")
+print(f"Model trained. MSE: {mse:.2f}")
 
 # Save model
 model_path = os.path.join("Machine_Learning_Model", "rental_model.pkl")
 joblib.dump(model, model_path)
-print(f"✅ Model saved to {model_path}")
+print(f"Model saved to {model_path}")
