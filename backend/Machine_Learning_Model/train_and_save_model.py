@@ -3,11 +3,13 @@ from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 import joblib
+import os
 
 # Load Excel data
-df = pd.read_excel('./backend/data_processing/MockData.xlsx')
+file_path = os.path.join("data_processing", "MockData.xlsx")
+df = pd.read_excel(file_path)
 
-# Rename columns to match what the model expects
+# Rename columns
 df.rename(columns={
     'Bedrooms': 'bedrooms',
     'Bathrooms': 'bathrooms',
@@ -15,16 +17,16 @@ df.rename(columns={
     'Weekly Rent ($NZD)': 'rent_price'
 }, inplace=True)
 
-# Drop rows with missing essential values
+# Drop missing rows
 df.dropna(subset=['bedrooms', 'bathrooms', 'rent_price', 'suburb'], inplace=True)
 
-# Assign dummy value for floor_area (since it's not in your file)
-df['floor_area'] = 100  # Placeholder value — improve later with estimation
+# Assign default floor area
+df['floor_area'] = 100
 
-# One-hot encode categorical suburb
+# One-hot encode suburb
 df = pd.get_dummies(df, columns=['suburb'], drop_first=True)
 
-# Define input features and target
+# Features and target
 X = df[['bedrooms', 'bathrooms', 'floor_area'] + [col for col in df.columns if col.startswith('suburb_')]]
 y = df['rent_price']
 
@@ -38,8 +40,9 @@ model.fit(X_train, y_train)
 # Evaluate
 predictions = model.predict(X_test)
 mse = mean_squared_error(y_test, predictions)
-print(f"Model trained. MSE: {mse:.2f}")
+print(f"✅ Model trained. MSE: {mse:.2f}")
 
-# Save trained model
-joblib.dump(model, './backend/Machine_Learning_Model/rental_model.pkl')
-print("Model saved to './backend/Machine_Learning_Model/rental_model.pkl'")
+# Save model
+model_path = os.path.join("Machine_Learning_Model", "rental_model.pkl")
+joblib.dump(model, model_path)
+print(f"✅ Model saved to {model_path}")
