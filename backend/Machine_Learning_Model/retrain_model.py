@@ -5,22 +5,23 @@ from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 
+MODEL_PATH = os.path.join("backend", "Machine_Learning_Model", "rental_model.pkl")
+DATA_PATH = os.path.join("backend", "data_processing", "MockData.xlsx")
+
 def retrain_rent_model():
     try:
-        # Construct path to dataset
-        file_path = os.path.join("backend", "data_processing", "MockData.xlsx")
-        if not os.path.exists(file_path):
+        if not os.path.exists(DATA_PATH):
             return "Error: MockData.xlsx not found."
 
-        # Load the Excel file using openpyxl engine
-        df = pd.read_excel(file_path, engine='openpyxl')
+        # Load dataset
+        df = pd.read_excel(DATA_PATH, engine='openpyxl')
 
-        # Validate required columns
+        # Validate expected columns
         required_cols = ['Bedrooms', 'Bathrooms', 'Suburb', 'Weekly Rent ($NZD)']
         if not all(col in df.columns for col in required_cols):
             return "Error: One or more required columns are missing from the Excel file."
 
-        # Rename to match model format
+        # Standardise column names
         df.rename(columns={
             'Bedrooms': 'bedrooms',
             'Bathrooms': 'bathrooms',
@@ -28,35 +29,34 @@ def retrain_rent_model():
             'Weekly Rent ($NZD)': 'rent_price'
         }, inplace=True)
 
-        # Drop rows with missing values in required columns
+        # Drop rows with missing values
         df.dropna(subset=['bedrooms', 'bathrooms', 'rent_price', 'suburb'], inplace=True)
 
-        # Add placeholder feature
+        # Add placeholder 'floor_area' if not present
         df['floor_area'] = 100
 
-        # One-hot encode 'suburb'
-        df = pd.get_dummies(df, columns=['suburb'], drop_first=True)
+        # One-hot encode suburbs
+        df = pd.get_dummies(df, columns=['suburb'], prefix='suburb')
 
-        # Split into features and target
-        X = df[['bedrooms', 'bathrooms', 'floor_area'] + [col for col in df.columns if col.startswith('suburb_')]]
+        # Features and target
+        X = df.drop(columns=['rent_price'])
         y = df['rent_price']
 
-        # Train/test split
+        # Split dataset
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
         # Train model
         model = LinearRegression()
         model.fit(X_train, y_train)
 
-        # Evaluate with MSE
+        # Evaluate
         predictions = model.predict(X_test)
         mse = mean_squared_error(y_test, predictions)
 
-        # Save trained model
-        model_path = os.path.join("backend", "Machine_Learning_Model", "rental_model.pkl")
-        joblib.dump(model, model_path)
+        # Save model
+        joblib.dump(model, MODEL_PATH)
 
-        return f"Model retrained and saved successfully! MSE: {mse:.2f}"
+        return f"Model retrained and saved. MSE: {mse:.2f}"
 
     except Exception as e:
         return f"Retraining failed: {str(e)}"
