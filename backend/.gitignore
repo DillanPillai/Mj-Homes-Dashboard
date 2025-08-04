@@ -1,0 +1,25 @@
+# Byte-compiled / cache files
+__pycache__/
+*.py[cod]
+
+# Model and logs
+Machine_Learning_Model/rental_model.pkl
+Machine_Learning_Model/prediction_logs.csv
+
+# Virtual environments
+venv/
+env/
+
+# Uploaded datasets
+data_processing/MockData.xlsx
+
+# Logs
+*.log
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE/editor settings
+.vscode/
+.idea/
