@@ -2,34 +2,23 @@ from dotenv import load_dotenv
 import os
 import shutil
 import logging
-import sys
 
 from fastapi import FastAPI, UploadFile, File, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
-# Custom module imports
-from pipeline_main import main as run_pipeline
-from data_processing.loader import save_to_db, fetch_processed_data
-from data_scraper.scraper import scrape_listings
-from data_processing.cleaner import clean_data
-from data_processing.predictor import predict_rent
-from Machine_Learning_Model.retrain_model import retrain_rent_model
-from Machine_Learning_Model.predict_logger import log_prediction
-from Machine_Learning_Model.rental_price_model import load_model, prepare_input_dataframe
-
-# Load environment variables
+# Load .env environment variables
 load_dotenv()
 
-# Setup logging
+# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Initialise FastAPI app
+# Initialize FastAPI app
 app = FastAPI(title="MJ Home API")
 
-# Enable CORS
+# Enable CORS for frontend integration
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -38,12 +27,32 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Root endpoint - health check
+# API Models
+
+class RentalInput(BaseModel):
+    bedrooms: int
+    bathrooms: int
+    floor_area: float
+    suburb: str
+
+# Modules
+
+from pipeline_main import main as run_pipeline
+from data_processing.loader import save_to_db, fetch_processed_data
+from data_scraper.scraper import scrape_listings
+from data_processing.cleaner import clean_data
+from data_processing.predictor import predict_rent
+
+from Machine_Learning_Model.retrain_model import retrain_rent_model
+from Machine_Learning_Model.predict_logger import log_prediction
+from Machine_Learning_Model.rental_price_model import load_model, prepare_input_dataframe
+
+# Routes
+
 @app.get("/", summary="Health Verification", description="Verify whether the MJ Home API is live and running.")
 def read_root():
     return {"message": "MJ Home API is live"}
 
-# Trigger pipeline manually
 @app.post("/run-pipeline", summary="Trigger Pipeline", description="Manually trigger the complete data processing pipeline.")
 def run_pipeline_endpoint():
     try:
@@ -52,41 +61,32 @@ def run_pipeline_endpoint():
     except Exception as e:
         return {"status": "Error", "detail": str(e)}
 
-# Get processed data for frontend dashboard
 @app.get("/data", summary="View processed Data", description="Fetch cleaned and processed property data for the frontend dashboard.")
 def get_data(limit: int = 100):
     data = fetch_processed_data(limit)
     return {"status": "success", "data": data}
 
-# Manually retrain rental model on latest available data
 @app.post("/retrain-model", summary="Retrain ML Model", description="Manually retrain the rental price prediction model using the latest available data.")
 def retrain_model_endpoint():
     result = retrain_rent_model()
     return {"status": "done", "message": result}
 
-# Upload a new dataset and retrain model automatically
 @app.post("/upload-data", summary="Upload and Retrain", description="Upload a new Excel dataset and automatically retrain the rental price model.")
 async def upload_data(file: UploadFile = File(...)):
     try:
         logger.info("[UPLOAD] Upload endpoint hit")
 
-        # Validate file format
         if not file.filename.endswith(".xlsx"):
-            return {
-                "status": "error",
-                "message": "Invalid file format. Please upload an Excel .xlsx file."
-            }
+            return {"status": "error", "message": "Invalid file format. Please upload an Excel .xlsx file."}
 
-        # Save the uploaded Excel file to the expected location
         save_path = os.path.join("data_processing", "MockData.xlsx")
         logger.info("[UPLOAD] Saving uploaded file to %s", save_path)
+
         with open(save_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
-        # Call model retraining logic
         logger.info("[UPLOAD] File saved. Starting model retraining...")
         retrain_result = retrain_rent_model()
-        logger.info("[UPLOAD] Retraining complete.")
 
         return {
             "status": "success",
@@ -101,14 +101,6 @@ async def upload_data(file: UploadFile = File(...)):
             "message": f"Upload or retraining failed: {str(e)}"
         }
 
-# Model input schema for prediction
-class RentalInput(BaseModel):
-    bedrooms: int
-    bathrooms: int
-    floor_area: float
-    suburb: str
-
-# Predict rental price from input
 @app.post("/predict", summary="Predict rental price from listing data", description="Submit property features to receive a predicted rental price.")
 async def predict_rental_price(input_data: RentalInput, request: Request):
     try:
@@ -120,7 +112,6 @@ async def predict_rental_price(input_data: RentalInput, request: Request):
         prediction = model.predict(df_input)[0]
 
         user_id = request.headers.get("X-User-ID", "anonymous")
-
         log_prediction(input_data.dict(), prediction, user_id)
 
         return {"predicted_rent": round(prediction, 2)}
@@ -128,15 +119,14 @@ async def predict_rental_price(input_data: RentalInput, request: Request):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# Serve favicon to avoid 404
 @app.get("/favicon.ico")
 async def favicon():
     return FileResponse("static/favicon.ico")
 
-# Show links to docs when running manually
+# cd backend server
 if __name__ == "__main__":
     import uvicorn
-    print("MJ Home API Docs available at:")
+    print("MJ Home API Docs:")
     print("http://127.0.0.1:8000/docs")
     print("http://localhost:8000/docs")
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
