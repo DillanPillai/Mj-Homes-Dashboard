@@ -3,8 +3,9 @@ import joblib
 import pandas as pd
 
 # Constants
-MODEL_PATH = os.path.join("backend", "Machine_Learning_Model", "rental_model.pkl")
-DATA_PATH = os.path.join("backend", "data_processing", "MockData.xlsx")
+MODEL_PATH = os.path.join("Machine_Learning_Model", "rental_model.pkl")
+DATA_PATH = os.path.join("data_processing", "MockData.xlsx")
+
 
 # Load the trained model from disk
 def load_model():
