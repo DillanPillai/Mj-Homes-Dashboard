@@ -8,17 +8,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
-# Load .env environment variables
+# Load .env variables if any
 load_dotenv()
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Initialize FastAPI app
+# FastAPI instance
 app = FastAPI(title="MJ Home API")
 
-# Enable CORS for frontend integration
+# CORS middleware to allow all origins
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -27,16 +27,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# API Models
-
+# API Models 
 class RentalInput(BaseModel):
     bedrooms: int
     bathrooms: int
     floor_area: float
     suburb: str
 
-# Modules
-
+# Imports from modules 
 from pipeline_main import main as run_pipeline
 from data_processing.loader import save_to_db, fetch_processed_data
 from data_scraper.scraper import scrape_listings
@@ -61,12 +59,12 @@ def run_pipeline_endpoint():
     except Exception as e:
         return {"status": "Error", "detail": str(e)}
 
-@app.get("/data", summary="View processed Data", description="Fetch cleaned and processed property data for the frontend dashboard.")
+@app.get("/data", summary="View Processed Data", description="Fetch cleaned and processed property data for the frontend dashboard.")
 def get_data(limit: int = 100):
     data = fetch_processed_data(limit)
     return {"status": "success", "data": data}
 
-@app.post("/retrain-model", summary="Retrain ML Model", description="Manually retrain the rental price prediction model using the latest available data.")
+@app.post("/retrain-model", summary="Retrain ML Model", description="Manually retrain the rental price prediction model using the latest data.")
 def retrain_model_endpoint():
     result = retrain_rent_model()
     return {"status": "done", "message": result}
@@ -101,7 +99,7 @@ async def upload_data(file: UploadFile = File(...)):
             "message": f"Upload or retraining failed: {str(e)}"
         }
 
-@app.post("/predict", summary="Predict rental price from listing data", description="Submit property features to receive a predicted rental price.")
+@app.post("/predict", summary="Predict Rental Price", description="Submit property features to receive a predicted rental price.")
 async def predict_rental_price(input_data: RentalInput, request: Request):
     try:
         model = load_model()
@@ -123,7 +121,7 @@ async def predict_rental_price(input_data: RentalInput, request: Request):
 async def favicon():
     return FileResponse("static/favicon.ico")
 
-# cd backend server
+# Dev Server 
 if __name__ == "__main__":
     import uvicorn
     print("MJ Home API Docs:")
