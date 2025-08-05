@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 import os
 import shutil
 import logging
+import re
 
 from fastapi import FastAPI, UploadFile, File, Request, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
@@ -34,14 +35,17 @@ class RentalInput(BaseModel):
     bedrooms: int = Field(..., gt=0, description="Number of bedrooms (must be greater than 0)", example=3)
     bathrooms: int = Field(..., gt=0, description="Number of bathrooms (must be greater than 0)", example=1)
     floor_area: float = Field(..., gt=10, description="Floor area in square meters (must be greater than 10)", example=85)
-    suburb: str = Field(..., min_length=1, description="Suburb name (e.g., 'Manurewa')", example="Manurewa")
+    suburb: str = Field(..., description="Suburb name (e.g., 'Manurewa')", example="Manurewa")
 
     @validator("suburb")
-    def validate_suburb(cls, value):
-        invalid_values = {"", "string", "suburb", "test", "example"}
-        if value.strip().lower() in invalid_values:
+    def validate_suburb(cls, v):
+        if not v.strip():
+            raise ValueError("Suburb cannot be empty.")
+        if v.lower() in {"string", "example", "", "test", "suburb"}:
             raise ValueError("Please enter a valid suburb name.")
-        return value
+        if v.isnumeric():
+            raise ValueError("Suburb name cannot be a number.")
+        return v
 
 # ------------------------
 # Module Imports
