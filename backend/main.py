@@ -27,13 +27,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Pydantic Models
 
+# Pydantic Models
 class RentalFeatures(BaseModel):
     bedrooms: int = Field(..., example=3)
     bathrooms: int = Field(..., example=1)
     floor_area: float = Field(..., example=85.0)
     suburb: str = Field(..., example="Manurewa")
+
+
+# API Models 
+class RentalInput(BaseModel):
+    bedrooms: int
+    bathrooms: int
+    floor_area: float
+    suburb: str
 
 
 # Module Imports
