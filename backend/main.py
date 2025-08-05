@@ -126,13 +126,9 @@ async def predict_rental_price(
         if model is None:
             raise HTTPException(status_code=500, detail="Model not loaded")
 
-        # Prepare input DataFrame
         df_input = prepare_input_dataframe(input_data)
-
-        # Predict
         prediction = model.predict(df_input)[0]
 
-        # Log with optional user ID from header
         user_id = request.headers.get("X-User-ID", "anonymous")
         log_prediction(input_data.dict(), prediction, user_id)
 
@@ -145,12 +141,11 @@ async def predict_rental_price(
         logger.error("[PREDICT] Internal error: %s", str(e))
         raise HTTPException(status_code=500, detail="Prediction failed: " + str(e))
 
-@app.get("/favicon.ico")
+@app.get("/favicon.ico", summary="Favicon", description="Returns the favicon for the MJ Home API (used by browser tabs).")
 async def favicon():
     return FileResponse("static/favicon.ico")
 
-
-# Dev Server (local run only)
+# Dev Server
 if __name__ == "__main__":
     import uvicorn
     print("MJ Home API Docs:")
