@@ -6,19 +6,19 @@ import logging
 from fastapi import FastAPI, UploadFile, File, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-# Load .env variables if any
+# Load environment variables
 load_dotenv()
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# FastAPI instance
+# Create FastAPI app instance
 app = FastAPI(title="MJ Home API")
 
-# CORS middleware to allow all origins
+# Enable CORS for frontend communication
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -27,14 +27,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# API Models 
-class RentalInput(BaseModel):
-    bedrooms: int
-    bathrooms: int
-    floor_area: float
-    suburb: str
+# Pydantic Models
 
-# Imports from modules 
+class RentalFeatures(BaseModel):
+    bedrooms: int = Field(..., example=3)
+    bathrooms: int = Field(..., example=1)
+    floor_area: float = Field(..., example=85.0)
+    suburb: str = Field(..., example="Manurewa")
+
+
+# Module Imports
+
 from pipeline_main import main as run_pipeline
 from data_processing.loader import save_to_db, fetch_processed_data
 from data_scraper.scraper import scrape_listings
@@ -45,7 +48,8 @@ from Machine_Learning_Model.retrain_model import retrain_rent_model
 from Machine_Learning_Model.predict_logger import log_prediction
 from Machine_Learning_Model.rental_price_model import load_model, prepare_input_dataframe
 
-# Routes
+
+# API Routes
 
 @app.get("/", summary="Health Verification", description="Verify whether the MJ Home API is live and running.")
 def read_root():
@@ -100,28 +104,38 @@ async def upload_data(file: UploadFile = File(...)):
         }
 
 @app.post("/predict", summary="Predict Rental Price", description="Submit property features to receive a predicted rental price.")
-async def predict_rental_price(input_data: RentalInput, request: Request):
+async def predict_rental_price(input_data: RentalFeatures, request: Request):
     try:
         model = load_model()
         if model is None:
             raise HTTPException(status_code=500, detail="Model not loaded")
 
+        # Prepare input DataFrame
         df_input = prepare_input_dataframe(input_data)
+
+        # Predict
         prediction = model.predict(df_input)[0]
 
+        # Log with optional user ID from header
         user_id = request.headers.get("X-User-ID", "anonymous")
         log_prediction(input_data.dict(), prediction, user_id)
 
         return {"predicted_rent": round(prediction, 2)}
 
+    except ValueError as ve:
+        raise HTTPException(status_code=422, detail=str(ve))
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("[PREDICT] Internal error: %s", str(e))
+        raise HTTPException(status_code=500, detail="Prediction failed: " + str(e))
 
 @app.get("/favicon.ico")
 async def favicon():
     return FileResponse("static/favicon.ico")
 
-# Dev Server 
+
+# Dev Server
+
 if __name__ == "__main__":
     import uvicorn
     print("MJ Home API Docs:")
