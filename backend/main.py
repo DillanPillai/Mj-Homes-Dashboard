@@ -34,6 +34,16 @@ class RentalInput(BaseModel):
     floor_area: float
     suburb: str
 
+    class Config:
+        schema_extra = {
+            "example": {
+                "bedrooms": 3,
+                "bathrooms": 1,
+                "floor_area": 85,
+                "suburb": "Manurewa"
+            }
+        }
+
 # Module Imports
 from pipeline_main import main as run_pipeline
 from data_processing.loader import save_to_db, fetch_processed_data
@@ -105,21 +115,8 @@ async def upload_data(file: UploadFile = File(...)):
     response_model=dict
 )
 async def predict_rental_price(
-    input_data: RentalInput = Body(
-        ...,
-        examples={
-            "Example": {
-                "summary": "Typical rental input",
-                "value": {
-                    "bedrooms": 3,
-                    "bathrooms": 1,
-                    "floor_area": 85,
-                    "suburb": "Manurewa"
-                }
-            }
-        }
-    ),
-    request: Request
+    request: Request,
+    input_data: RentalInput
 ):
     try:
         model = load_model()
@@ -140,6 +137,7 @@ async def predict_rental_price(
     except Exception as e:
         logger.error("[PREDICT] Internal error: %s", str(e))
         raise HTTPException(status_code=500, detail="Prediction failed: " + str(e))
+
 
 @app.get("/favicon.ico", summary="Favicon", description="Returns the favicon for the MJ Home API (used by browser tabs).")
 async def favicon():
