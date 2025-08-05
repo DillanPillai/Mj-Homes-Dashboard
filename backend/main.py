@@ -6,7 +6,7 @@ import logging
 from fastapi import FastAPI, UploadFile, File, Request, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 
 # Load environment variables
 load_dotenv()
@@ -34,7 +34,14 @@ class RentalInput(BaseModel):
     bedrooms: int = Field(..., gt=0, description="Number of bedrooms (must be greater than 0)", example=3)
     bathrooms: int = Field(..., gt=0, description="Number of bathrooms (must be greater than 0)", example=1)
     floor_area: float = Field(..., gt=10, description="Floor area in square meters (must be greater than 10)", example=85)
-    suburb: str = Field(..., description="Suburb name (e.g., 'Manurewa')", example="Manurewa")
+    suburb: str = Field(..., min_length=1, description="Suburb name (e.g., 'Manurewa')", example="Manurewa")
+
+    @validator("suburb")
+    def validate_suburb(cls, value):
+        invalid_values = {"", "string", "suburb", "test", "example"}
+        if value.strip().lower() in invalid_values:
+            raise ValueError("Please enter a valid suburb name.")
+        return value
 
 # ------------------------
 # Module Imports
