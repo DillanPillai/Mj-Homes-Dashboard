@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 import os
 import shutil
 import logging
-import re
+import pandas as pd
 
 from fastapi import FastAPI, UploadFile, File, Request, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
@@ -29,23 +29,38 @@ app.add_middleware(
 )
 
 # ------------------------
+# Load allowed suburbs
+# ------------------------
+DATA_FILE = os.path.join("data_processing", "MockData.xlsx")
+if not os.path.exists(DATA_FILE):
+    raise FileNotFoundError(f"MockData.xlsx not found at {DATA_FILE}")
+
+try:
+    df = pd.read_excel(DATA_FILE)
+    ALLOWED_SUBURBS = sorted(df["Suburb"].dropna().astype(str).str.strip().unique().tolist())
+    logger.info("Allowed suburbs loaded: %d suburbs", len(ALLOWED_SUBURBS))
+except Exception as e:
+    logger.error("Error loading suburbs from Excel: %s", str(e))
+    ALLOWED_SUBURBS = []
+
+# ------------------------
 # Pydantic Input Model
 # ------------------------
 class RentalInput(BaseModel):
     bedrooms: int = Field(..., gt=0, description="Number of bedrooms (must be greater than 0)", example=3)
     bathrooms: int = Field(..., gt=0, description="Number of bathrooms (must be greater than 0)", example=1)
     floor_area: float = Field(..., gt=10, description="Floor area in square meters (must be greater than 10)", example=85)
-    suburb: str = Field(..., description="Suburb name (e.g., 'Manurewa')", example="Manurewa")
+    suburb: str = Field(..., description="Suburb name (must be from dataset)", example="Manurewa")
 
     @validator("suburb")
     def validate_suburb(cls, v):
         if not v.strip():
             raise ValueError("Suburb cannot be empty.")
-        if v.lower() in {"string", "example", "", "test", "suburb"}:
-            raise ValueError("Please enter a valid suburb name.")
-        if v.isnumeric():
-            raise ValueError("Suburb name cannot be a number.")
-        return v
+        if v.strip().isdigit():
+            raise ValueError("Suburb cannot be a number.")
+        if v.strip() not in ALLOWED_SUBURBS:
+            raise ValueError(f"Invalid suburb. Must be one of: {', '.join(ALLOWED_SUBURBS[:5])}...")
+        return v.strip()
 
 # ------------------------
 # Module Imports
