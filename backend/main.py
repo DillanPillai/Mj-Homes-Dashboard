@@ -3,10 +3,10 @@ import os
 import shutil
 import logging
 
-from fastapi import FastAPI, UploadFile, File, Request, HTTPException
+from fastapi import FastAPI, UploadFile, File, Request, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 # Load environment variables
 load_dotenv()
@@ -27,25 +27,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-# Pydantic Models
-class RentalFeatures(BaseModel):
-    bedrooms: int = Field(..., example=3)
-    bathrooms: int = Field(..., example=1)
-    floor_area: float = Field(..., example=85.0)
-    suburb: str = Field(..., example="Manurewa")
-
-
-# API Models 
+# Pydantic Input Model
 class RentalInput(BaseModel):
     bedrooms: int
     bathrooms: int
     floor_area: float
     suburb: str
 
-
 # Module Imports
-
 from pipeline_main import main as run_pipeline
 from data_processing.loader import save_to_db, fetch_processed_data
 from data_scraper.scraper import scrape_listings
@@ -56,9 +45,7 @@ from Machine_Learning_Model.retrain_model import retrain_rent_model
 from Machine_Learning_Model.predict_logger import log_prediction
 from Machine_Learning_Model.rental_price_model import load_model, prepare_input_dataframe
 
-
 # API Routes
-
 @app.get("/", summary="Health Verification", description="Verify whether the MJ Home API is live and running.")
 def read_root():
     return {"message": "MJ Home API is live"}
@@ -111,8 +98,29 @@ async def upload_data(file: UploadFile = File(...)):
             "message": f"Upload or retraining failed: {str(e)}"
         }
 
-@app.post("/predict", summary="Predict Rental Price", description="Submit property features to receive a predicted rental price.")
-async def predict_rental_price(input_data: RentalFeatures, request: Request):
+@app.post(
+    "/predict",
+    summary="Predict Rental Price",
+    description="Submit property features to receive a predicted rental price.",
+    response_model=dict
+)
+async def predict_rental_price(
+    input_data: RentalInput = Body(
+        ...,
+        examples={
+            "Example": {
+                "summary": "Typical rental input",
+                "value": {
+                    "bedrooms": 3,
+                    "bathrooms": 1,
+                    "floor_area": 85,
+                    "suburb": "Manurewa"
+                }
+            }
+        }
+    ),
+    request: Request
+):
     try:
         model = load_model()
         if model is None:
@@ -142,8 +150,7 @@ async def favicon():
     return FileResponse("static/favicon.ico")
 
 
-# Dev Server
-
+# Dev Server (local run only)
 if __name__ == "__main__":
     import uvicorn
     print("MJ Home API Docs:")
