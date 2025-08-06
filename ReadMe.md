@@ -1,47 +1,51 @@
----
+# MJ Homes Dashboard
 
-## Backend Setup - MJ Home API
-
-### Requirements
-- Python 3.10 or above
-- Virtual environment tool (e.g. `venv`)
-- Node.js (for frontend or npm tasks)
+This is the main repository for the **MJ Homes Dashboard** — a property data analytics and rental price prediction platform built with a FastAPI backend and a future frontend.
 
 ---
 
-### Backend Setup
+## Project Structure
+Mj-Homes-Dashboard/
+│
+├── backend/ → FastAPI backend (ML, API endpoints)
+│ ├── main.py → App entry point
+│ ├── requirements.txt → Python dependencies
+│ ├── .gitignore → Ignore rules for backend files
+│ ├── README.md → Backend setup and API usage
+│
+├── frontend/ → Frontend folder (optional or WIP)
+│
+└── ReadMe.md → This file (main project overview)
 
-```bash
-# 1. Navigate to backend folder
-cd backend
-
-# 2. Create and activate virtual environment
-python -m venv venv
-venv\Scripts\activate  # on Windows
-
-# 3. Install requirements
-pip install -r requirements.txt
-
-# 4. Start the backend server
-npm run dev
-```
 
 ---
 
-### API Docs
+## Backend Setup
 
-After running the server, open:
-
-- http://127.0.0.1:8000/docs
-- http://localhost:8000/docs
+Please follow the instructions in:  
+[`backend/README.md`](./backend/README.md)
 
 ---
 
-### Environment Variables
+## Backend Features
 
-To use secrets or config, add a `.env` file like:
+- Model retraining using updated Excel datasets
+- Rental price prediction via `/predict`
+- Dataset upload and validation
+- Swagger docs at `/docs`
+- Input logging for audits and debugging
 
-```
-DATABASE_URL=your_database_url
-API_KEY=your_api_key_here
-```
+---
+
+## :dart: Tech Stack
+
+- **Backend:** FastAPI, scikit-learn, pandas, Pydantic
+- **Environment Management:** `venv`, `.env`, `requirements.txt`
+- **Data Format:** Excel (`.xlsx`)
+
+---
+
+## Notes
+
+- All rental price predictions require a valid suburb name that exists in the uploaded dataset.
+- Suburb values are validated dynamically — no hardcoded lists.
