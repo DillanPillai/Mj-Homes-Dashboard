@@ -1,17 +1,20 @@
 # Byte-compiled / cache files
 __pycache__/
 *.py[cod]
+*.pyo
 
-# Model and logs
+# Model files and logs
 Machine_Learning_Model/rental_model.pkl
 Machine_Learning_Model/prediction_logs.csv
+
+# Uploaded datasets
+data_processing/MockData.xlsx
+*.csv
+*.xlsx
 
 # Virtual environments
 venv/
 env/
-
-# Uploaded datasets
-data_processing/MockData.xlsx
 
 # Logs
 *.log
@@ -20,6 +23,19 @@ data_processing/MockData.xlsx
 .DS_Store
 Thumbs.db
 
-# IDE/editor settings
+# Editor / IDE settings
 .vscode/
 .idea/
+*.sublime-workspace
+*.sublime-project
+
+# Python test cache
+.pytest_cache/
+coverage.xml
+htmlcov/
+
+# Ignore Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
