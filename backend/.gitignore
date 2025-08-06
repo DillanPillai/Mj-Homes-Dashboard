@@ -2,6 +2,8 @@
 __pycache__/
 *.py[cod]
 *.pyo
+*.pyc
+*.pyd
 
 # Model files and logs
 Machine_Learning_Model/rental_model.pkl
@@ -33,9 +35,3 @@ Thumbs.db
 .pytest_cache/
 coverage.xml
 htmlcov/
-
-# Ignore Python cache files
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
