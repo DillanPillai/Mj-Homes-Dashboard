@@ -37,7 +37,7 @@ Please follow the instructions in:
 
 ---
 
-## :dart: Tech Stack
+## Tech Stack
 
 - **Backend:** FastAPI, scikit-learn, pandas, Pydantic
 - **Environment Management:** `venv`, `.env`, `requirements.txt`
