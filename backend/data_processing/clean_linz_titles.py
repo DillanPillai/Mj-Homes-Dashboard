@@ -3,7 +3,7 @@ import os
 
 # Load the raw LINZ titles CSV from the root directory
 raw_csv_path = os.path.join("linz_property_titles.csv")
-cleaned_csv_path = os.path.join("Backend", "data_processing", "cleaned_linz_property_titles.csv")
+cleaned_csv_path = os.path.join("backend", "data_processing", "cleaned_linz_property_titles.csv")
 
 # Read the CSV file
 df = pd.read_csv(raw_csv_path)
