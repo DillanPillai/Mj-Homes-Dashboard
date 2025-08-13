@@ -2,7 +2,7 @@ import { Home, TrendingUp, Clock, DollarSign } from 'lucide-react';
 import { KPICard } from '../KPICard';
 import { ChartCard } from '../ChartCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { RentPredictSection } from './RentPredictSection';
+import { RentPredictSection } from './RentPredict.tsx';
 
 export const RentalMarketSection = () => {
   return (
