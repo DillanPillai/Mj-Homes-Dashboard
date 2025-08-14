@@ -1,13 +1,11 @@
 {
-  "name": "backend",
+  "name": "mj-homes-backend",
+  "private": true,
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "FastAPI backend for MJ Homes",
   "scripts": {
-    "dev": "uvicorn main:app --reload",
-    "start": "uvicorn main:app --host 0.0.0.0 --port 8000"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": ""
+    "dev": "venv\\Scripts\\python.exe -m uvicorn main:app --reload --host 127.0.0.1 --port 8000",
+    "start": "venv\\Scripts\\python.exe -m uvicorn main:app --host 0.0.0.0 --port 8000",
+    "test": "venv\\Scripts\\python.exe -m pytest -q"
+  }
 }
