@@ -4,10 +4,12 @@ import shutil
 import logging
 import pandas as pd
 
+# Imports for FastAPI and related components
 from fastapi import FastAPI, UploadFile, File, Request, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field, validator
+from routers.properties import router as properties_router
 
 # Load environment variables
 load_dotenv()
@@ -19,6 +21,9 @@ logger = logging.getLogger(__name__)
 # Create FastAPI app instance
 app = FastAPI(title="MJ Home API")
 
+# Register the router
+app.include_router(properties_router)
+
 # Enable CORS for frontend communication
 app.add_middleware(
     CORSMiddleware,
@@ -28,9 +33,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ------------------------
 # Load allowed suburbs
-# ------------------------
 DATA_FILE = os.path.join("data_processing", "MockData.xlsx")
 if not os.path.exists(DATA_FILE):
     raise FileNotFoundError(f"MockData.xlsx not found at {DATA_FILE}")
@@ -43,9 +46,7 @@ except Exception as e:
     logger.error("Error loading suburbs from Excel: %s", str(e))
     ALLOWED_SUBURBS = []
 
-# ------------------------
 # Pydantic Input Model
-# ------------------------
 class RentalInput(BaseModel):
     bedrooms: int = Field(..., gt=0, description="Number of bedrooms (must be greater than 0)", example=3)
     bathrooms: int = Field(..., gt=0, description="Number of bathrooms (must be greater than 0)", example=1)
@@ -62,9 +63,7 @@ class RentalInput(BaseModel):
             raise ValueError(f"Invalid suburb. Must be one of: {', '.join(ALLOWED_SUBURBS[:5])}...")
         return v.strip()
 
-# ------------------------
 # Module Imports
-# ------------------------
 from pipeline_main import main as run_pipeline
 from data_processing.loader import save_to_db, fetch_processed_data
 from data_scraper.scraper import scrape_listings
@@ -74,9 +73,7 @@ from Machine_Learning_Model.retrain_model import retrain_rent_model
 from Machine_Learning_Model.predict_logger import log_prediction
 from Machine_Learning_Model.rental_price_model import load_model, prepare_input_dataframe
 
-# ------------------------
 # API Endpoints
-# ------------------------
 @app.get("/", summary="Health Verification", description="Verify whether the MJ Home API is live and running.")
 def read_root():
     return {"message": "MJ Home API is live"}
@@ -163,7 +160,6 @@ async def predict_rental_price(
 async def favicon():
     return FileResponse("static/favicon.ico")
 
-# Dev Server
 if __name__ == "__main__":
     import uvicorn
     print("MJ Home API Docs:")

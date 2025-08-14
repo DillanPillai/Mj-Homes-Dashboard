@@ -2,7 +2,7 @@ import unittest
 import pandas as pd
 from pandas.testing import assert_frame_equal
 
-# Simulated logic from your investment_ranker.py
+# Simulated logic from investment_ranker.py
 def rank_top_suburbs(df, top_n=10):
     df_clean = df.dropna(subset=["Suburb", "Weekly Rent ($NZD)", "Days on Market"])
     ranked = df_clean.sort_values(
