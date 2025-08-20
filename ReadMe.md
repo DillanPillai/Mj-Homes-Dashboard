@@ -71,7 +71,7 @@ Please follow the instructions in:
     ```
 
 2. Follow backend setup instructions in `backend/README.md`
-3. Access the API documentation at `http://localhost:8000/docs`
+3. Access the API documentation at `http://127.0.0.1:8000/docs` or `http://localhost:8000/docs` 
 
 ## API Endpoints
 
@@ -101,4 +101,4 @@ For questions or support, please open an issue in this repository.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](https://www.github.com/LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](https://www.github.com/) file for details.
