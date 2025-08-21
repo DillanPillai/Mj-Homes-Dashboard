@@ -28,7 +28,6 @@ export const RentPredictSection = () => {
 
   return (
     <div className="max-w-md mx-auto bg-white rounded-xl shadow-md p-8 space-y-6">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">Rent Cost Prediction</h2>
       <input
         name="suburb"
         placeholder="Suburb"
