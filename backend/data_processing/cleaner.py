@@ -73,3 +73,40 @@ def clean_data(raw_data) -> pd.DataFrame:
     df.fillna(0, inplace=True)
 
     return df
+
+
+# 🧠 NEW: Used for model training + prediction
+def prepare_features(df: pd.DataFrame, valid_suburbs: list[str] = None) -> pd.DataFrame:
+    """
+    Prepares cleaned, numeric, encoded fields for ML model.
+    
+    Args:
+        df: Raw DataFrame with 'suburb', 'bedrooms', 'bathrooms', 'floor_area'
+        valid_suburbs: Optional list of allowed suburb names for validation
+
+    Returns:
+        pd.DataFrame: Cleaned and one-hot encoded for ML model
+    """
+    df = df.copy()
+
+    # Clean suburb values
+    df['suburb'] = df['suburb'].astype(str).str.strip().str.title()
+    df = df[~df['suburb'].isin(["", "String", "??", "N/A", "Na", "Null", "None", "Unknown"])]
+
+    # Filter to allowed suburbs
+    if valid_suburbs is not None:
+        df = df[df['suburb'].isin(valid_suburbs)]
+
+    # Convert numeric columns
+    numeric_cols = ['bedrooms', 'bathrooms', 'floor_area']
+    for col in numeric_cols:
+        df[col] = pd.to_numeric(df[col], errors='coerce')
+
+    # Drop rows with missing values in key fields
+    df = df.dropna(subset=numeric_cols)
+
+    # One-hot encode suburb
+    suburb_dummies = pd.get_dummies(df['suburb'], prefix='suburb')
+    df = pd.concat([df.drop(columns=['suburb']), suburb_dummies], axis=1)
+
+    return df
