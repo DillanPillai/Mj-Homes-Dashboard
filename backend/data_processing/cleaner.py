@@ -20,7 +20,7 @@ def clean_data(raw_data) -> pd.DataFrame:
 
     df = raw_data.copy()
 
-    # 🔁 Rename known Excel headers to standardized names
+    # Rename known Excel headers to standardized names
     df.rename(columns={
         'Weekly Rent ($NZD)': 'rent_price',
         'Floor Area (m2)': 'floor_area',
@@ -75,7 +75,7 @@ def clean_data(raw_data) -> pd.DataFrame:
     return df
 
 
-# 🧠 NEW: Used for model training + prediction
+# NEW: Used for model training + prediction
 def prepare_features(df: pd.DataFrame, valid_suburbs: list[str] = None) -> pd.DataFrame:
     """
     Prepares cleaned, numeric, encoded fields for ML model.
