@@ -13,6 +13,9 @@ try:
 except Exception:
     RealEstateNZProvider = None  # type: ignore
 
+# NEW: shared validator import (used for file-ingest or any DataFrame validation)
+from data_processing.validate_properties import validate_dataframe  # type: ignore
+
 logger = logging.getLogger(__name__)
 
 
@@ -30,7 +33,8 @@ def get_provider(provider_name: str):
 
 def _normalize(rec: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Normalise and validate a single record.
+    Normalise and validate a single record fetched from a provider.
+    (This is separate from the DataFrame validator used for CSV/XLSX ingestion.)
     """
     def S(v):
         return (v or "").strip() if isinstance(v, str) else v
@@ -112,7 +116,8 @@ def _upsert_any_db(db: Session, rows: List[Dict[str, Any]]) -> Tuple[int, int]:
 
 def run_ingestion(db: Session, provider_name: str = "mock") -> Dict[str, Any]:
     """
-    Run ingestion for a given provider.
+    Run ingestion for a given provider (mock or realestate_nz).
+    Leaves behavior unchanged from your previous story.
     """
     provider = get_provider(provider_name)
     raw = provider.fetch_listings()
@@ -127,3 +132,31 @@ def run_ingestion(db: Session, provider_name: str = "mock") -> Dict[str, Any]:
     }
     logger.info("[INGEST] %s", summary)
     return summary
+
+
+# -----------------------------------------------------------------------------
+# NEW: Shared validator wrapper for file/DF ingestion (used by your new story)
+# -----------------------------------------------------------------------------
+def validate_property_dataframe(df) -> Dict[str, Any]:
+    """
+    Apply the same rule-based validation used for your acceptance tests to a
+    pandas DataFrame (e.g., from CSV/XLSX upload).
+
+    Returns:
+      {
+        "summary": { "total": int, "accepted": int, "rejected": int, "duplicates": int },
+        "issues":  [ {row, field, code, message}, ... ],
+        "accepted_df": <DataFrame>   # rows safe to persist
+      }
+    """
+    accepted_df, issues, summary = validate_dataframe(df)
+    return {
+        "summary": {
+            "total": summary.total,
+            "accepted": summary.accepted,
+            "rejected": summary.rejected,
+            "duplicates": summary.duplicates,
+        },
+        "issues": [i.__dict__ for i in issues],
+        "accepted_df": accepted_df,
+    }

@@ -16,6 +16,7 @@ from pydantic import BaseModel, Field, validator
 try:
     # Routers & internal modules
     from routers.properties import router as properties_router
+    from routers import ingest  # NEW: file validation/upload router
     from data_processing.dataset_uploader import process_upload
     from schemas import UploadSummary
     from db import engine, SessionLocal
@@ -32,7 +33,9 @@ try:
     from Machine_Learning_Model.rental_price_model import load_model, prepare_input_dataframe
 
 except ModuleNotFoundError:
+    # Fallback absolute-style imports if run from repo root
     from backend.routers.properties import router as properties_router
+    from backend.routers import ingest  # NEW: file validation/upload router
     from backend.data_processing.dataset_uploader import process_upload
     from backend.schemas import UploadSummary
     from backend.db import engine, SessionLocal
@@ -45,7 +48,7 @@ except ModuleNotFoundError:
     from backend.data_processing.predictor import predict_rent
     from backend.Machine_Learning_Model.retrain_model import retrain_rent_model
     from backend.Machine_Learning_Model.predict_logger import log_prediction
-    from backend.Machine_Learning_Model.rental_price_model import load_model, prepare_input_dataframe  
+    from backend.Machine_Learning_Model.rental_price_model import load_model, prepare_input_dataframe
 
 # -----------------------------
 # Environment & Logging
@@ -64,6 +67,7 @@ SQLBase.metadata.create_all(bind=engine)
 
 # Register routers
 app.include_router(properties_router)
+app.include_router(ingest.router)  # NEW: exposes POST /ingest/file
 
 # Enable CORS for frontend communication
 app.add_middleware(
