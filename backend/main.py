@@ -12,21 +12,40 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field, validator
 
-# Routers & internal modules
-from routers.properties import router as properties_router
-from data_processing.dataset_uploader import process_upload
-from schemas import UploadSummary
-from db import engine
+# Try imports relative to current working dir first (when running from backend/)
+try:
+    # Routers & internal modules
+    from routers.properties import router as properties_router
+    from data_processing.dataset_uploader import process_upload
+    from schemas import UploadSummary
+    from db import engine, SessionLocal
+    from models import Base as SQLBase
 
-# ML modules
-from pipeline_main import main as run_pipeline
-from data_processing.loader import save_to_db, fetch_processed_data
-from data_scraper.scraper import scrape_listings
-from data_processing.cleaner import clean_data
-from data_processing.predictor import predict_rent
-from Machine_Learning_Model.retrain_model import retrain_rent_model
-from Machine_Learning_Model.predict_logger import log_prediction
-from Machine_Learning_Model.rental_price_model import load_model, prepare_input_dataframe
+    # ML / pipeline modules
+    from pipeline_main import main as run_pipeline
+    from data_processing.loader import save_to_db, fetch_processed_data
+    from data_scraper.scraper import scrape_listings
+    from data_processing.cleaner import clean_data
+    from data_processing.predictor import predict_rent
+    from Machine_Learning_Model.retrain_model import retrain_rent_model
+    from Machine_Learning_Model.predict_logger import log_prediction
+    from Machine_Learning_Model.rental_price_model import load_model, prepare_input_dataframe
+
+except ModuleNotFoundError:
+    from backend.routers.properties import router as properties_router
+    from backend.data_processing.dataset_uploader import process_upload
+    from backend.schemas import UploadSummary
+    from backend.db import engine, SessionLocal
+    from backend.models import Base as SQLBase
+
+    from backend.pipeline_main import main as run_pipeline
+    from backend.data_processing.loader import save_to_db, fetch_processed_data
+    from backend.data_scraper.scraper import scrape_listings
+    from backend.data_processing.cleaner import clean_data
+    from backend.data_processing.predictor import predict_rent
+    from backend.Machine_Learning_Model.retrain_model import retrain_rent_model
+    from backend.Machine_Learning_Model.predict_logger import log_prediction
+    from backend.Machine_Learning_Model.rental_price_model import load_model, prepare_input_dataframe  
 
 # -----------------------------
 # Environment & Logging
@@ -39,6 +58,9 @@ logger = logging.getLogger(__name__)
 # FastAPI App
 # -----------------------------
 app = FastAPI(title="MJ Home API")
+
+# Ensure tables exist at startup
+SQLBase.metadata.create_all(bind=engine)
 
 # Register routers
 app.include_router(properties_router)

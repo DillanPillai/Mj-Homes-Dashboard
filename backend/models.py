@@ -1,17 +1,31 @@
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from sqlalchemy import Integer, String, Numeric, DateTime, text
+# backend/models.py
+from __future__ import annotations
 from datetime import datetime
+
+from sqlalchemy import Integer, String, Numeric, DateTime, UniqueConstraint, func
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+
 
 class Base(DeclarativeBase):
     pass
 
+
 class Property(Base):
     __tablename__ = "properties"
-    # ensure AUTOINCREMENT on SQLite
-    __table_args__ = {"sqlite_autoincrement": True}
+    __table_args__ = (
+        # Ensures idempotent upserts per provider
+        UniqueConstraint("source", "external_id", name="uq_properties_source_extid"),
+        {"sqlite_autoincrement": True},
+    )
 
-    # INTEGER PRIMARY KEY works across Postgres + SQLite
+    # Primary key
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+
+    # Provenance for deduplication across providers
+    source: Mapped[str | None] = mapped_column(String(32))
+    external_id: Mapped[str | None] = mapped_column(String(64))
+
+    # Core fields
     address: Mapped[str] = mapped_column(String, nullable=False)
     suburb: Mapped[str] = mapped_column(String, nullable=False)
     bedrooms: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -19,6 +33,14 @@ class Property(Base):
     floor_area: Mapped[float | None] = mapped_column(Numeric(10, 2))
     rent_weekly: Mapped[float | None] = mapped_column(Numeric(10, 2))
     property_type: Mapped[str | None] = mapped_column(String(30))
-    # use a cross-DB default that works in SQLite & Postgres
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP"))
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP"))
+
+    # Timestamps
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+    )

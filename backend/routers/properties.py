@@ -3,9 +3,15 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 from typing import List
 
-from db import get_db
-from models import Property
-from schemas import PropertyOut
+# Support running from backend/ (plain imports) and importing as backend.*
+try:
+    from db import get_db
+    from models import Property
+    from schemas import PropertyOut
+except ModuleNotFoundError:
+    from backend.db import get_db
+    from backend.models import Property
+    from backend.schemas import PropertyOut
 
 router = APIRouter(prefix="/properties", tags=["Properties"])
 
@@ -25,3 +31,18 @@ def list_properties(
         return db.execute(stmt).scalars().all()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database error: {e.__class__.__name__}")
+
+
+@router.post("/fetch", summary="Fetch property listings from provider (manual trigger)")
+def fetch_properties(
+    provider: str = Query("mock", description="Provider key (e.g., 'mock')"),
+    db: Session = Depends(get_db),
+):
+    try:
+        from services.ingest_properties import run_ingestion
+        summary = run_ingestion(db, provider_name=provider)
+        return {"status": "ok", "summary": summary}
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Ingestion failed: {e.__class__.__name__}")
