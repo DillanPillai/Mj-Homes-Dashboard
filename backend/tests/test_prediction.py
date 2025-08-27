@@ -1,7 +1,10 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from backend.main import app  # Adjusted for correct import path if needed
+try:
+    from main import app
+except ModuleNotFoundError:
+    from backend.main import app
 
 client = TestClient(app)
 

@@ -1,8 +1,16 @@
-from data_scraper.scraper import scrape_listings
-from data_processing.cleaner import clean_data
-from data_processing.predictor import predict_rent
-from data_processing.loader import save_to_db
-
+# Support both "run from backend/" and "import as backend.pipeline_main"
+try:
+    # plain imports (when your CWD is backend/)
+    from data_scraper.scraper import scrape_listings
+    from data_processing.cleaner import clean_data
+    from data_processing.transformer import transform_data
+    from data_processing.loader import save_to_db
+except ModuleNotFoundError:
+    # package imports (when importing as backend.pipeline_main)
+    from backend.data_scraper.scraper import scrape_listings
+    from backend.data_processing.cleaner import clean_data
+    from backend.data_processing.transformer import transform_data
+    from backend.data_processing.loader import save_to_db
 
 def main():
     print("Starting MJ Home backend pipeline...")
