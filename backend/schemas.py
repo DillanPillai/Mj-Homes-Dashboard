@@ -1,6 +1,7 @@
 # backend/schemas.py
 from pydantic import BaseModel, Field
 from datetime import datetime
+from typing import Optional, Dict
 
 
 class PropertyOut(BaseModel):
@@ -27,3 +28,15 @@ class UploadSummary(BaseModel):
     message: str = Field(..., description="Status message about the upload")
     cleaned_file_name: str = Field(..., description="Name of the cleaned CSV file saved on the server")
     download_url: str = Field(..., description="API endpoint to download the cleaned CSV/XLSX file")
+
+
+# --- NEW: pipeline run summary ---
+class PipelineRunSummary(BaseModel):
+    stage_counts: Dict[str, int] = Field(
+        ..., description="Number of rows at each stage (ingested, validated_ok, rejected, duplicates, transformed_ok, stored)"
+    )
+    report_csv: Optional[str] = Field(
+        None, description="Relative path to CSV issues report (if issues found)"
+    )
+    duration_seconds: float = Field(..., description="Pipeline execution time in seconds")
+    mode: str = Field(..., description="'append' (default) or 'replace' mode for DB storage")
