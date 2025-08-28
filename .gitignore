@@ -5,3 +5,4 @@ package-lock.json
 .venv/
 __pychache__/
 .pytetest_cache/
+venv/
