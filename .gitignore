@@ -32,3 +32,4 @@ backend/.env
 # Locks (optional—keep if your team prefers deterministic installs)
 # package-lock.json
 # Pipfile.lock
+
