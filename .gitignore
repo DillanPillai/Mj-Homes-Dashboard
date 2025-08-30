@@ -1,8 +1,35 @@
+# OS cruft
 .DS_Store
+Thumbs.db
 ~$*
-.env
-package-lock.json
+
+# Editors / IDE
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+dist/
+build/
+
+# Virtual envs
 .venv/
-__pychache__/
-.pytetest_cache/
 venv/
+backend/venv/
+
+# Node
+node_modules/
+
+# Env files (keep secrets out of Git)
+.env
+backend/.env
+
+# Locks (optional—keep if your team prefers deterministic installs)
+# package-lock.json
+# Pipfile.lock
+

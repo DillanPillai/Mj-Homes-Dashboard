@@ -1,23 +1,73 @@
+# backend/main.py
 from dotenv import load_dotenv
 import os
 import shutil
 import logging
 import pandas as pd
+from pathlib import Path
 
+# Imports for FastAPI and related components
 from fastapi import FastAPI, UploadFile, File, Request, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field, validator
 
-# Load environment variables
-load_dotenv()
+# Try imports relative to current working dir first (when running from backend/)
+try:
+    # Routers & internal modules
+    from routers.properties import router as properties_router
+    from routers import ingest  # NEW: file validation/upload router
+    from data_processing.dataset_uploader import process_upload
+    from schemas import UploadSummary
+    from db import engine, SessionLocal
+    from models import Base as SQLBase
 
-# Configure logging
+    # ML / pipeline modules
+    from pipeline_main import main as run_pipeline
+    from data_processing.loader import save_to_db, fetch_processed_data
+    from data_scraper.scraper import scrape_listings
+    from data_processing.cleaner import clean_data
+    from data_processing.predictor import predict_rent
+    from Machine_Learning_Model.retrain_model import retrain_rent_model
+    from Machine_Learning_Model.predict_logger import log_prediction
+    from Machine_Learning_Model.rental_price_model import load_model, prepare_input_dataframe
+
+except ModuleNotFoundError:
+    # Fallback absolute-style imports if run from repo root
+    from backend.routers.properties import router as properties_router
+    from backend.routers import ingest  # NEW: file validation/upload router
+    from backend.data_processing.dataset_uploader import process_upload
+    from backend.schemas import UploadSummary
+    from backend.db import engine, SessionLocal
+    from backend.models import Base as SQLBase
+
+    from backend.pipeline_main import main as run_pipeline
+    from backend.data_processing.loader import save_to_db, fetch_processed_data
+    from backend.data_scraper.scraper import scrape_listings
+    from backend.data_processing.cleaner import clean_data
+    from backend.data_processing.predictor import predict_rent
+    from backend.Machine_Learning_Model.retrain_model import retrain_rent_model
+    from backend.Machine_Learning_Model.predict_logger import log_prediction
+    from backend.Machine_Learning_Model.rental_price_model import load_model, prepare_input_dataframe
+
+# -----------------------------
+# Environment & Logging
+# -----------------------------
+load_dotenv()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Create FastAPI app instance
+# -----------------------------
+# FastAPI App
+# -----------------------------
 app = FastAPI(title="MJ Home API")
+
+# Ensure tables exist at startup
+SQLBase.metadata.create_all(bind=engine)
+
+# Register routers
+app.include_router(properties_router)
+app.include_router(ingest.router)  # NEW: exposes POST /ingest/file
 
 # Enable CORS for frontend communication
 app.add_middleware(
@@ -28,24 +78,35 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ------------------------
-# Load allowed suburbs
-# ------------------------
-DATA_FILE = os.path.join("data_processing", "MockData.xlsx")
-if not os.path.exists(DATA_FILE):
-    raise FileNotFoundError(f"MockData.xlsx not found at {DATA_FILE}")
+# -----------------------------
+# Allowed suburbs loader (CSV/XLSX)
+# -----------------------------
+_xlsx = Path("data_processing") / "MockData.xlsx"
+_csv = Path("data_processing") / "MockData.csv"
+
+if not _xlsx.exists() and not _csv.exists():
+    raise FileNotFoundError("Neither MockData.xlsx nor MockData.csv found in data_processing/")
 
 try:
-    df = pd.read_excel(DATA_FILE)
+    if _xlsx.exists() and (not _csv.exists() or _xlsx.stat().st_mtime >= _csv.stat().st_mtime):
+        df = pd.read_excel(_xlsx)
+    else:
+        df = pd.read_csv(_csv)
+
     ALLOWED_SUBURBS = sorted(df["Suburb"].dropna().astype(str).str.strip().unique().tolist())
     logger.info("Allowed suburbs loaded: %d suburbs", len(ALLOWED_SUBURBS))
 except Exception as e:
-    logger.error("Error loading suburbs from Excel: %s", str(e))
+    logger.error("Error loading suburbs: %s", str(e))
     ALLOWED_SUBURBS = []
 
-# ------------------------
+# -----------------------------
+# Directory for cleaned datasets
+# -----------------------------
+CLEANED_DIR = Path(__file__).parent / "cleaned"
+
+# -----------------------------
 # Pydantic Input Model
-# ------------------------
+# -----------------------------
 class RentalInput(BaseModel):
     bedrooms: int = Field(..., gt=0, description="Number of bedrooms (must be greater than 0)", example=3)
     bathrooms: int = Field(..., gt=0, description="Number of bathrooms (must be greater than 0)", example=1)
@@ -62,24 +123,13 @@ class RentalInput(BaseModel):
             raise ValueError(f"Invalid suburb. Must be one of: {', '.join(ALLOWED_SUBURBS[:5])}...")
         return v.strip()
 
-# ------------------------
-# Module Imports
-# ------------------------
-from pipeline_main import main as run_pipeline
-from data_processing.loader import save_to_db, fetch_processed_data
-from data_scraper.scraper import scrape_listings
-from data_processing.cleaner import clean_data
-from data_processing.predictor import predict_rent
-from Machine_Learning_Model.retrain_model import retrain_rent_model
-from Machine_Learning_Model.predict_logger import log_prediction
-from Machine_Learning_Model.rental_price_model import load_model, prepare_input_dataframe
-
-# ------------------------
+# -----------------------------
 # API Endpoints
-# ------------------------
+# -----------------------------
 @app.get("/", summary="Health Verification", description="Verify whether the MJ Home API is live and running.")
 def read_root():
     return {"message": "MJ Home API is live"}
+
 
 @app.post("/run-pipeline", summary="Trigger Pipeline", description="Manually trigger the complete data processing pipeline.")
 def run_pipeline_endpoint():
@@ -89,27 +139,33 @@ def run_pipeline_endpoint():
     except Exception as e:
         return {"status": "Error", "detail": str(e)}
 
+
 @app.get("/data", summary="View Processed Data", description="Fetch cleaned and processed property data for the frontend dashboard.")
 def get_data(limit: int = 100):
     data = fetch_processed_data(limit)
     return {"status": "success", "data": data}
+
 
 @app.post("/retrain-model", summary="Retrain ML Model", description="Manually retrain the rental price prediction model using the latest data.")
 def retrain_model_endpoint():
     result = retrain_rent_model()
     return {"status": "done", "message": result}
 
-@app.post("/upload-data", summary="Upload and Retrain", description="Upload a new Excel dataset and automatically retrain the rental price model.")
+
+@app.post("/upload-data", summary="Upload and Retrain", description="Upload a new dataset (.xlsx or .csv) and automatically retrain the rental price model.")
 async def upload_data(file: UploadFile = File(...)):
     try:
         logger.info("[UPLOAD] Upload endpoint hit")
 
-        if not file.filename.endswith(".xlsx"):
-            return {"status": "error", "message": "Invalid file format. Please upload an Excel .xlsx file."}
+        filename = (file.filename or "").lower()
+        if not (filename.endswith(".xlsx") or filename.endswith(".csv")):
+            return {"status": "error", "message": "Invalid file format. Please upload an Excel .xlsx or a .csv file."}
 
-        save_path = os.path.join("data_processing", "MockData.xlsx")
+        # Save to MockData.xlsx or MockData.csv
+        save_path = Path("data_processing") / ("MockData.xlsx" if filename.endswith(".xlsx") else "MockData.csv")
+        save_path.parent.mkdir(parents=True, exist_ok=True)
+
         logger.info("[UPLOAD] Saving uploaded file to %s", save_path)
-
         with open(save_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
@@ -124,21 +180,16 @@ async def upload_data(file: UploadFile = File(...)):
 
     except Exception as e:
         logger.error("[UPLOAD] Error during upload or retrain: %s", str(e))
-        return {
-            "status": "error",
-            "message": f"Upload or retraining failed: {str(e)}"
-        }
+        return {"status": "error", "message": f"Upload or retraining failed: {str(e)}"}
+
 
 @app.post(
     "/predict",
     summary="Predict Rental Price",
     description="Submit property features to receive a predicted rental price.",
-    response_model=dict
+    response_model=dict,
 )
-async def predict_rental_price(
-    request: Request,
-    input_data: RentalInput = Body(...)
-):
+async def predict_rental_price(request: Request, input_data: RentalInput = Body(...)):
     try:
         model = load_model()
         if model is None:
@@ -154,16 +205,70 @@ async def predict_rental_price(
 
     except ValueError as ve:
         raise HTTPException(status_code=422, detail=str(ve))
-
     except Exception as e:
         logger.error("[PREDICT] Internal error: %s", str(e))
         raise HTTPException(status_code=500, detail="Prediction failed: " + str(e))
+
+
+# -----------------------------
+# New: Dataset Upload & Download
+# -----------------------------
+@app.post(
+    "/upload-dataset",
+    summary="Upload a CSV/XLSX/HTML dataset for cleaning & storage",
+    response_model=UploadSummary,
+)
+async def upload_dataset(file: UploadFile = File(...)):
+    if file.content_type not in {
+        "text/csv",
+        "application/vnd.ms-excel",
+        "text/html",
+        "application/xhtml+xml",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    }:
+        raise HTTPException(status_code=415, detail="Please upload a CSV, HTML, or XLSX file.")
+
+    file_bytes = await file.read()
+
+    try:
+        summary, saved_path = process_upload(
+            file_bytes=file_bytes,
+            filename=file.filename or "dataset",
+            content_type=file.content_type or "",
+            engine=engine,
+            cleaned_dir=CLEANED_DIR,
+        )
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        logger.exception("Processing failed")
+        raise HTTPException(status_code=500, detail=f"Processing failed: {e}")
+
+    download_url = f"/download-cleaned/{saved_path.name}"
+    return UploadSummary(**summary, download_url=download_url)
+
+
+@app.get("/download-cleaned/{file_name}", summary="Download a cleaned CSV")
+def download_cleaned(file_name: str):
+    safe_dir = CLEANED_DIR.resolve()
+    target = (CLEANED_DIR / file_name).resolve()
+
+    if safe_dir not in target.parents and target != safe_dir:
+        raise HTTPException(status_code=400, detail="Invalid file name.")
+    if not target.exists():
+        raise HTTPException(status_code=404, detail="File not found.")
+
+    return FileResponse(target, media_type="text/csv", filename=file_name)
+
 
 @app.get("/favicon.ico", summary="Favicon", description="Returns the favicon for the MJ Home API (used by browser tabs).")
 async def favicon():
     return FileResponse("static/favicon.ico")
 
-# Dev Server
+
+# -----------------------------
+# Run directly
+# -----------------------------
 if __name__ == "__main__":
     import uvicorn
     print("MJ Home API Docs:")

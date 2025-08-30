@@ -1,48 +1,54 @@
+import os
+from pathlib import Path
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 import joblib
-import os
 
-# Load Excel data
-file_path = os.path.join("data_processing", "MockData.xlsx")
-df = pd.read_excel(file_path, engine='openpyxl')
+def _pick_dataset_path() -> Path | None:
+    data_dir = Path("data_processing")
+    xlsx = data_dir / "MockData.xlsx"
+    csvp = data_dir / "MockData.csv"
+    if xlsx.exists() and csvp.exists():
+        return xlsx if xlsx.stat().st_mtime >= csvp.stat().st_mtime else csvp
+    if xlsx.exists():
+        return xlsx
+    if csvp.exists():
+        return csvp
+    return None
 
-# Rename columns
-df.rename(columns={
-    'Bedrooms': 'bedrooms',
-    'Bathrooms': 'bathrooms',
-    'Suburb': 'suburb',
-    'Weekly Rent ($NZD)': 'rent_price'
-}, inplace=True)
+src = _pick_dataset_path()
+if not src:
+    raise SystemExit("No MockData.xlsx or MockData.csv found in data_processing/")
 
-# Drop missing rows
-df.dropna(subset=['bedrooms', 'bathrooms', 'rent_price', 'suburb'], inplace=True)
+df = pd.read_excel(src) if src.suffix.lower() == ".xlsx" else pd.read_csv(src)
 
-# Assign default floor area
-df['floor_area'] = 100
+# Rename columns as used in training
+df = df.rename(columns={
+    "Bedrooms": "bedrooms",
+    "Bathrooms": "bathrooms",
+    "Suburb": "suburb",
+    "Weekly Rent ($NZD)": "rent_price",
+})
 
-# One-hot encode suburb
-df = pd.get_dummies(df, columns=['suburb'], drop_first=True)
+# Basic cleaning
+df = df.dropna(subset=["bedrooms", "bathrooms", "rent_price", "suburb"]).copy()
+if "floor_area" not in df.columns:
+    df["floor_area"] = 100
 
-# Features and target
-X = df[['bedrooms', 'bathrooms', 'floor_area'] + [col for col in df.columns if col.startswith('suburb_')]]
-y = df['rent_price']
+# One-hot suburbs
+df = pd.get_dummies(df, columns=["suburb"])
 
-# Train/test split
+X = df[["bedrooms", "bathrooms", "floor_area"] + [c for c in df.columns if c.startswith("suburb_")]]
+y = df["rent_price"]
+
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# Train model
-model = LinearRegression()
-model.fit(X_train, y_train)
+model = LinearRegression().fit(X_train, y_train)
+mse = mean_squared_error(y_test, model.predict(X_test))
+print(f"Model trained. MSE: {mse:.2f} (source: {src.name})")
 
-# Evaluate
-predictions = model.predict(X_test)
-mse = mean_squared_error(y_test, predictions)
-print(f"Model trained. MSE: {mse:.2f}")
-
-# Save model
 model_path = os.path.join("Machine_Learning_Model", "rental_model.pkl")
 joblib.dump(model, model_path)
 print(f"Model saved to {model_path}")
