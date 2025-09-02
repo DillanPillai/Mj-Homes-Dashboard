@@ -29,7 +29,7 @@ node_modules/
 .env
 backend/.env
 
-# Locks (optional—keep if your team prefers deterministic installs)
+# Locks 
 # package-lock.json
 # Pipfile.lock
 
