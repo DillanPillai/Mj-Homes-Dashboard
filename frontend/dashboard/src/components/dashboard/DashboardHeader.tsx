@@ -1,4 +1,4 @@
-import { Settings, LogOut, User, Bell, Menu } from 'lucide-react';
+import { LogOut, User, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -45,30 +45,23 @@ export const DashboardHeader = ({ onToggleSidebar }: DashboardHeaderProps) => {
           {/* Brand */}
           <div>
             <h1 className="text-xl font-bold text-gray-900">MJ Home Dashboard</h1>
-            <p className="text-sm text-gray-500">Real Estate Market Insights and Targeted Marketing Strategy</p>
+            <p className="text-sm text-gray-500">
+              Real Estate Market Insights and Targeted Marketing Strategy
+            </p>
           </div>
         </div>
 
         {/* Right side actions */}
         <div className="flex items-center space-x-4">
-          {/* Notifications */}
-          <Button variant="ghost" size="sm" className="relative">
-            <Bell className="w-5 h-5" />
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">3</span>
-          </Button>
-
-          {/* Settings */}
-          <Button variant="ghost" size="sm">
-            <Settings className="w-5 h-5" />
-          </Button>
-
           {/* User Profile Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="flex items-center space-x-2 px-3">
                 <Avatar className="w-8 h-8">
                   <AvatarImage src="/placeholder.svg" alt="User" />
-                  <AvatarFallback>{user?.name?.split(' ').map(n => n[0]).join('') || 'U'}</AvatarFallback>
+                  <AvatarFallback>
+                    {user?.name?.split(' ').map(n => n[0]).join('') || 'U'}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="text-left hidden md:block">
                   <p className="text-sm font-medium">{user?.name || 'User'}</p>
@@ -80,10 +73,6 @@ export const DashboardHeader = ({ onToggleSidebar }: DashboardHeaderProps) => {
               <DropdownMenuItem>
                 <User className="w-4 h-4 mr-2" />
                 Profile
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Settings className="w-4 h-4 mr-2" />
-                Settings
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout} className="text-red-600">

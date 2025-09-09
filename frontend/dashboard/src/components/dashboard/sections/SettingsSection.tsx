@@ -1,5 +1,4 @@
-
-import { Settings, User, Bell, Shield, Palette } from 'lucide-react';
+import { User, Bell } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -13,6 +12,7 @@ export const SettingsSection = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Profile Settings */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -41,6 +41,7 @@ export const SettingsSection = () => {
           </CardContent>
         </Card>
 
+        {/* Notifications */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
