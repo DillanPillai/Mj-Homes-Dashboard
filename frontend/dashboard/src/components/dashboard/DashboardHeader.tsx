@@ -1,93 +1,121 @@
-import { Settings, LogOut, User, Bell, Menu } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+// DashboardHeader.tsx
+// If you're on Next.js app router, keep this. In Vite it doesn't hurt.
+"use client"
+
+import { LogOut, User, Menu } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/hooks/use-toast';
+} from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useAuth } from "@/contexts/AuthContext"
+import { useToast } from "@/hooks/use-toast"
+import * as React from "react"
 
 interface DashboardHeaderProps {
-  onToggleSidebar?: () => void;
+  onToggleSidebar?: () => void
 }
 
-export const DashboardHeader = ({ onToggleSidebar }: DashboardHeaderProps) => {
-  const { user, logout } = useAuth();
-  const { toast } = useToast();
+export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
+  onToggleSidebar,
+}) => {
+  const { user, logout } = useAuth()
+  const { toast } = useToast()
 
-  const handleLogout = () => {
-    logout();
-    toast({
-      title: "Logged out",
-      description: "You have been successfully logged out.",
-    });
-  };
+  const getInitials = React.useCallback(() => {
+    const name = (user as any)?.name as string | undefined
+    if (name && name.trim().length > 0) {
+      return name
+        .trim()
+        .split(/\s+/)
+        .map((n) => n[0]?.toUpperCase())
+        .join("")
+        .slice(0, 2)
+    }
+    const email = (user as any)?.email as string | undefined
+    return email?.[0]?.toUpperCase() ?? "U"
+  }, [user])
+
+  const handleLogout = async () => {
+    // if your logout is async, await it so the toast doesn't get lost on navigation
+    try {
+      await Promise.resolve(logout())
+      toast({
+        title: "Logged out",
+        description: "You have been successfully logged out.",
+        variant: "destructive",
+        // Fallback class override in case variant isn't forwarded by <Toaster />
+        className:
+          "bg-destructive text-destructive-foreground border-destructive",
+      })
+    } catch (e) {
+      toast({
+        title: "Logout failed",
+        description: "Please try again.",
+        variant: "destructive",
+      })
+    }
+  }
 
   return (
-    <header className="bg-white border-b border-gray-200 px-6 py-4 shadow-sm fixed top-0 left-0 right-0 z-40">
+    <header className="fixed left-0 right-0 top-0 z-40 border-b border-gray-200 bg-white px-6 py-4 shadow-sm">
       <div className="flex items-center justify-between">
-        {/* Left side with burger menu and brand */}
+        {/* Left: burger + brand */}
         <div className="flex items-center space-x-2">
-          {/* Burger Menu */}
           <Button
             variant="ghost"
             size="sm"
-            onClick={onToggleSidebar}
+            onClick={onToggleSidebar ?? (() => {})}
             className="p-2"
+            aria-label="Toggle sidebar"
           >
-            <Menu className="w-5 h-5" />
+            <Menu className="h-5 w-5" />
           </Button>
 
-          {/* Brand */}
           <div>
             <h1 className="text-xl font-bold text-gray-900">MJ Home Dashboard</h1>
-            <p className="text-sm text-gray-500">Real Estate Market Insights and Targeted Marketing Strategy</p>
+            <p className="text-sm text-gray-500">
+              Real Estate Market Insights and Targeted Marketing Strategy
+            </p>
           </div>
         </div>
 
-        {/* Right side actions */}
+        {/* Right: profile menu */}
         <div className="flex items-center space-x-4">
-          {/* Notifications */}
-          <Button variant="ghost" size="sm" className="relative">
-            <Bell className="w-5 h-5" />
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">3</span>
-          </Button>
-
-          {/* Settings */}
-          <Button variant="ghost" size="sm">
-            <Settings className="w-5 h-5" />
-          </Button>
-
-          {/* User Profile Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="flex items-center space-x-2 px-3">
-                <Avatar className="w-8 h-8">
+                <Avatar className="h-8 w-8">
                   <AvatarImage src="/placeholder.svg" alt="User" />
-                  <AvatarFallback>{user?.name?.split(' ').map(n => n[0]).join('') || 'U'}</AvatarFallback>
+                  <AvatarFallback>{getInitials()}</AvatarFallback>
                 </Avatar>
-                <div className="text-left hidden md:block">
-                  <p className="text-sm font-medium">{user?.name || 'User'}</p>
+                <div className="hidden text-left md:block">
+                  <p className="text-sm font-medium">
+                    {(user as any)?.name ?? "User"}
+                  </p>
                   <p className="text-xs text-gray-500">Admin</p>
                 </div>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56 bg-white">
               <DropdownMenuItem>
-                <User className="w-4 h-4 mr-2" />
+                <User className="mr-2 h-4 w-4" />
                 Profile
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Settings className="w-4 h-4 mr-2" />
-                Settings
-              </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout} className="text-red-600">
-                <LogOut className="w-4 h-4 mr-2" />
+              {/* Radix <DropdownMenuItem> fires onSelect more reliably than onClick */}
+              <DropdownMenuItem
+                onSelect={(e) => {
+                  e.preventDefault()
+                  handleLogout()
+                }}
+                className="text-red-600 focus:text-red-700"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
                 Log Out
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -95,5 +123,5 @@ export const DashboardHeader = ({ onToggleSidebar }: DashboardHeaderProps) => {
         </div>
       </div>
     </header>
-  );
-};
+  )
+}

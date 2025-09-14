@@ -1,7 +1,4 @@
-
 import { OverviewSection } from './sections/OverviewSection';
-import { SocialMediaSection } from './sections/SocialMediaSection';
-import { TradeMeSection } from './sections/TradeMeSection';
 import { CombinedInsightsSection } from './sections/CombinedInsightsSection';
 import { DataUploadSection } from './sections/DataUploadSection';
 import { SettingsSection } from './sections/SettingsSection';
@@ -21,16 +18,16 @@ export const DashboardContent = ({ activeSection }: DashboardContentProps) => {
             <OverviewSection />
           </>
         );
-      case 'social-media':
-        return <SocialMediaSection />;
-      case 'trademe':
-        return <TradeMeSection />;
+
       case 'combined-insights':
         return <CombinedInsightsSection />;
+
       case 'data-upload':
         return <DataUploadSection />;
+
       case 'settings':
         return <SettingsSection />;
+
       default:
         return (
           <>
@@ -41,9 +38,5 @@ export const DashboardContent = ({ activeSection }: DashboardContentProps) => {
     }
   };
 
-  return (
-    <div className="p-6 space-y-6">
-      {renderContent()}
-    </div>
-  );
+  return <div className="p-6 space-y-6">{renderContent()}</div>;
 };

@@ -2,7 +2,6 @@ import React, { useRef, useState } from 'react';
 import { Upload, FileText, AlertCircle, CheckCircle, Trash2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { DatasetStatus } from '../DatasetStatus';
 import { PrivacyBanner } from '../PrivacyBanner';
 import * as XLSX from 'xlsx';
 
@@ -106,7 +105,8 @@ export const DataUploadSection = () => {
 
       <PrivacyBanner />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Upload Card only - full width */}
+      <div className="grid grid-cols-1 gap-6">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
@@ -145,8 +145,6 @@ export const DataUploadSection = () => {
             </div>
           </CardContent>
         </Card>
-
-        <DatasetStatus />
       </div>
 
       {kpis && (
