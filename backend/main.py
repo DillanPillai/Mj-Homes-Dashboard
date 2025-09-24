@@ -1,22 +1,36 @@
-# backend/main.py
 from dotenv import load_dotenv
 import os
+import sys
 import shutil
 import logging
-import pandas as pd
+import warnings
 from pathlib import Path
 
-# Imports for FastAPI and related components
+import pandas as pd
+import sklearn
+from sklearn.exceptions import InconsistentVersionWarning
+
 from fastapi import FastAPI, UploadFile, File, Request, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field, validator
 
-# Try imports relative to current working dir first (when running from backend/)
+# Logging & diagnostics (early)
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("main")
+
+logger.info("Python exe: %s", sys.executable)
+logger.info("sklearn runtime: %s", sklearn.__version__)
+logger.info("CWD at import: %s", os.getcwd())
+
+# (Optional) Silence only the sklearn pickle version warning
+warnings.filterwarnings("ignore", category=InconsistentVersionWarning)
+
+# Imports that depend on working package paths (backend/ vs repo root)
 try:
-    # Routers & internal modules
+    # Routers & internal modules (when running from backend/)
     from routers.properties import router as properties_router
-    from routers import ingest  # NEW: file validation/upload router
+    from routers import ingest
     from data_processing.dataset_uploader import process_upload
     from schemas import UploadSummary
     from db import engine, SessionLocal
@@ -30,12 +44,16 @@ try:
     from data_processing.predictor import predict_rent
     from Machine_Learning_Model.retrain_model import retrain_rent_model
     from Machine_Learning_Model.predict_logger import log_prediction
-    from Machine_Learning_Model.rental_price_model import load_model, prepare_input_dataframe
+    from Machine_Learning_Model import rental_price_model as rpm
+    from Machine_Learning_Model.rental_price_model import (
+        load_model,
+        prepare_input_dataframe,
+    )
 
 except ModuleNotFoundError:
     # Fallback absolute-style imports if run from repo root
     from backend.routers.properties import router as properties_router
-    from backend.routers import ingest  # NEW: file validation/upload router
+    from backend.routers import ingest
     from backend.data_processing.dataset_uploader import process_upload
     from backend.schemas import UploadSummary
     from backend.db import engine, SessionLocal
@@ -48,18 +66,22 @@ except ModuleNotFoundError:
     from backend.data_processing.predictor import predict_rent
     from backend.Machine_Learning_Model.retrain_model import retrain_rent_model
     from backend.Machine_Learning_Model.predict_logger import log_prediction
-    from backend.Machine_Learning_Model.rental_price_model import load_model, prepare_input_dataframe
+    from backend.Machine_Learning_Model import rental_price_model as rpm
+    from backend.Machine_Learning_Model.rental_price_model import (
+        load_model,
+        prepare_input_dataframe,
+    )
 
-# -----------------------------
-# Environment & Logging
-# -----------------------------
+# Log the exact model path we will load/save
+try:
+    logger.info("Model path resolved to: %s", os.path.abspath(rpm.MODEL_PATH))
+except Exception as _e:
+    logger.warning("Could not resolve MODEL_PATH from rental_price_model: %s", _e)
+
+# Environment
 load_dotenv()
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
-# -----------------------------
 # FastAPI App
-# -----------------------------
 app = FastAPI(title="MJ Home API")
 
 # Ensure tables exist at startup
@@ -67,7 +89,7 @@ SQLBase.metadata.create_all(bind=engine)
 
 # Register routers
 app.include_router(properties_router)
-app.include_router(ingest.router)  # NEW: exposes POST /ingest/file
+app.include_router(ingest.router)  # exposes POST /ingest/file
 
 # Enable CORS for frontend communication
 app.add_middleware(
@@ -78,9 +100,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# -----------------------------
 # Allowed suburbs loader (CSV/XLSX)
-# -----------------------------
 _xlsx = Path("data_processing") / "MockData.xlsx"
 _csv = Path("data_processing") / "MockData.csv"
 
@@ -99,14 +119,11 @@ except Exception as e:
     logger.error("Error loading suburbs: %s", str(e))
     ALLOWED_SUBURBS = []
 
-# -----------------------------
 # Directory for cleaned datasets
-# -----------------------------
 CLEANED_DIR = Path(__file__).parent / "cleaned"
+CLEANED_DIR.mkdir(parents=True, exist_ok=True)
 
-# -----------------------------
 # Pydantic Input Model
-# -----------------------------
 class RentalInput(BaseModel):
     bedrooms: int = Field(..., gt=0, description="Number of bedrooms (must be greater than 0)", example=3)
     bathrooms: int = Field(..., gt=0, description="Number of bathrooms (must be greater than 0)", example=1)
@@ -115,21 +132,21 @@ class RentalInput(BaseModel):
 
     @validator("suburb")
     def validate_suburb(cls, v):
-        if not v.strip():
+        if not v or not v.strip():
             raise ValueError("Suburb cannot be empty.")
-        if v.strip().isdigit():
+        v = v.strip()
+        if v.isdigit():
             raise ValueError("Suburb cannot be a number.")
-        if v.strip() not in ALLOWED_SUBURBS:
-            raise ValueError(f"Invalid suburb. Must be one of: {', '.join(ALLOWED_SUBURBS[:5])}...")
-        return v.strip()
+        if v not in ALLOWED_SUBURBS:
+            # Show a short preview to keep error size reasonable
+            sample = ", ".join(ALLOWED_SUBURBS[:5]) + ("..." if len(ALLOWED_SUBURBS) > 5 else "")
+            raise ValueError(f"Invalid suburb. Must be one of: {sample}")
+        return v
 
-# -----------------------------
 # API Endpoints
-# -----------------------------
 @app.get("/", summary="Health Verification", description="Verify whether the MJ Home API is live and running.")
 def read_root():
     return {"message": "MJ Home API is live"}
-
 
 @app.post("/run-pipeline", summary="Trigger Pipeline", description="Manually trigger the complete data processing pipeline.")
 def run_pipeline_endpoint():
@@ -139,18 +156,15 @@ def run_pipeline_endpoint():
     except Exception as e:
         return {"status": "Error", "detail": str(e)}
 
-
 @app.get("/data", summary="View Processed Data", description="Fetch cleaned and processed property data for the frontend dashboard.")
 def get_data(limit: int = 100):
     data = fetch_processed_data(limit)
     return {"status": "success", "data": data}
 
-
 @app.post("/retrain-model", summary="Retrain ML Model", description="Manually retrain the rental price prediction model using the latest data.")
 def retrain_model_endpoint():
     result = retrain_rent_model()
     return {"status": "done", "message": result}
-
 
 @app.post("/upload-data", summary="Upload and Retrain", description="Upload a new dataset (.xlsx or .csv) and automatically retrain the rental price model.")
 async def upload_data(file: UploadFile = File(...)):
@@ -182,7 +196,6 @@ async def upload_data(file: UploadFile = File(...)):
         logger.error("[UPLOAD] Error during upload or retrain: %s", str(e))
         return {"status": "error", "message": f"Upload or retraining failed: {str(e)}"}
 
-
 @app.post(
     "/predict",
     summary="Predict Rental Price",
@@ -201,18 +214,15 @@ async def predict_rental_price(request: Request, input_data: RentalInput = Body(
         user_id = request.headers.get("X-User-ID", "anonymous")
         log_prediction(input_data.dict(), prediction, user_id)
 
-        return {"predicted_rent": round(prediction, 2)}
+        return {"predicted_rent": round(float(prediction), 2)}
 
     except ValueError as ve:
         raise HTTPException(status_code=422, detail=str(ve))
     except Exception as e:
-        logger.error("[PREDICT] Internal error: %s", str(e))
+        logger.exception("[PREDICT] Internal error")
         raise HTTPException(status_code=500, detail="Prediction failed: " + str(e))
 
-
-# -----------------------------
-# New: Dataset Upload & Download
-# -----------------------------
+# Dataset Upload & Download (cleaned CSVs)
 @app.post(
     "/upload-dataset",
     summary="Upload a CSV/XLSX/HTML dataset for cleaning & storage",
@@ -247,7 +257,6 @@ async def upload_dataset(file: UploadFile = File(...)):
     download_url = f"/download-cleaned/{saved_path.name}"
     return UploadSummary(**summary, download_url=download_url)
 
-
 @app.get("/download-cleaned/{file_name}", summary="Download a cleaned CSV")
 def download_cleaned(file_name: str):
     safe_dir = CLEANED_DIR.resolve()
@@ -260,15 +269,11 @@ def download_cleaned(file_name: str):
 
     return FileResponse(target, media_type="text/csv", filename=file_name)
 
-
 @app.get("/favicon.ico", summary="Favicon", description="Returns the favicon for the MJ Home API (used by browser tabs).")
 async def favicon():
     return FileResponse("static/favicon.ico")
 
-
-# -----------------------------
 # Run directly
-# -----------------------------
 if __name__ == "__main__":
     import uvicorn
     print("MJ Home API Docs:")
