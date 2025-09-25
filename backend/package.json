@@ -4,8 +4,8 @@
   "version": "1.0.0",
   "description": "FastAPI backend for MJ Homes",
   "scripts": {
-    "dev": "python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000",
-    "start": "python -m uvicorn main:app --host 0.0.0.0 --port 8000",
+    "dev": "python -m uvicorn backend.main:app --app-dir .. --reload --host 127.0.0.1 --port 8000 --reload-dir .",
+    "start": "python -m uvicorn backend.main:app --app-dir .. --host 0.0.0.0 --port 8000",
     "test": "python -m pytest -q"
   }
 }
