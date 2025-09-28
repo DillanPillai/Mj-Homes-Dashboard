@@ -106,13 +106,14 @@ const Login = () => {
         
         {/* Background illustration image (positioned behind card) */}
         <img
-          src="/MJHOMESIGNUP2.jpg" // File name for illustration
-          alt="Illustration" // Alt text for accessibility
-          className="hidden md:block pointer-events-none select-none absolute right-full 
-                     top-1/2 -translate-y-1/2 translate-x-28
-                     w-[600px] lg:w-[680px] h-auto z-0" // Positioned to the left, scaled properly
-          loading="eager" // Load eagerly (performance hint)
-        />
+  src="/MJHOMESIGNUP2.jpg"
+  alt="Illustration"
+  className="hidden md:block pointer-events-none select-none absolute right-full 
+             top-1/2 -translate-y-[45%] translate-x-28
+             w-[600px] lg:w-[680px] h-[424px] z-0"
+  loading="eager"
+/>
+
 
         {/* Login card container */}
         <Card className="relative z-10 bg-[#E9EBEE] dark:bg-neutral-800 rounded-md shadow-sm border-0">
