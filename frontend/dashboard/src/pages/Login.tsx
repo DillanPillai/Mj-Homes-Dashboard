@@ -1,13 +1,13 @@
 // src/pages/Login.tsx
 
-// Import React hooks for state management and side effects
+// Import React hooks for local state and side effects
 import { useState, useEffect } from "react";
 
-// Import Button component from the UI library (shadcn/ui)
+// Import Button component from shadcn/ui library
 import { Button } from "@/components/ui/button";
-// Import Input component from the UI library
+// Import Input component from shadcn/ui library
 import { Input } from "@/components/ui/input";
-// Import Card and its subcomponents for a styled container
+// Import Card and its subcomponents for styled containers
 import {
   Card,
   CardContent,
@@ -16,183 +16,183 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-// Import icons from lucide-react (Mail icon, Lock icon, Loader2 spinner)
+// Import icons from lucide-react
 import { Mail, Lock, Loader2 } from "lucide-react";
 
-// Import authentication context (provides login method and user state)
+// Import authentication context (contains login method & current user state)
 import { useAuth } from "@/contexts/AuthContext";
-// Import custom toast hook (used for notifications)
+// Import toast hook for showing notifications
 import { useToast } from "@/hooks/use-toast";
-// Import React Router hooks for navigation and location
+// Import navigation and location hooks from React Router
 import { useNavigate, useLocation } from "react-router-dom";
 
 // Define the Login component
 const Login = () => {
-  // State: track whether login request is in progress (loading state)
+  // Track whether login is in progress (for spinner and disabling inputs)
   const [isLoading, setIsLoading] = useState(false);
 
-  // State: store login form data (email + password)
+  // State for login form data: email and password
   const [loginData, setLoginData] = useState({ email: "", password: "" });
 
-  // Extract login function and current user from authentication context
+  // Get login function and current user from AuthContext
   const { login, user } = useAuth();
 
-  // Toast hook for showing notifications (success or error messages)
+  // Toast function for notifications
   const { toast } = useToast();
 
-  // Router helpers: navigation and current route info
+  // Router helpers
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Extract "from" path (redirect destination after login), fallback to "/"
+  // Destination after login: either previous route ("from") or "/"
   const from = (location.state as any)?.from?.pathname || "/";
 
-  // If user is already logged in, redirect them automatically
+  // Redirect if user is already logged in
   useEffect(() => {
     if (user) navigate(from, { replace: true });
-  }, [user, from, navigate]); // Run effect if user, from, or navigate changes
+  }, [user, from, navigate]);
 
-  // Function: handle login form submission
+  // Handle login form submission
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); // Prevent default form behavior (page reload)
-    setIsLoading(true); // Show loading spinner
+    e.preventDefault(); // prevent default form submit (page reload)
+    setIsLoading(true); // start loading state
 
     try {
-      // Attempt login using the AuthContext's login function
+      // Try to log in with given email and password
       const ok = await login(loginData.email, loginData.password);
 
-      // Show notification depending on login result
+      // Show toast message based on login result
       toast({
-        title: ok ? "Login successful" : "Login failed", // Success or failure message
+        title: ok ? "Login successful" : "Login failed",
         description: ok
-          ? "Welcome to MJ Home Dashboard!" // Success text
-          : "Please check your credentials and try again.", // Failure text
-        variant: ok ? "default" : "destructive", // Styling for notification
-        className: ok ? "bg-green-50 border-green-200 text-green-800" : "", // Styling for success case
+          ? "Welcome to MJ Home Dashboard!"
+          : "Please check your credentials and try again.",
+        variant: ok ? "default" : "destructive",
+        className: ok ? "bg-green-50 border-green-200 text-green-800" : "",
       });
 
-      // If login succeeded, redirect to the "from" route
+      // Navigate to previous route if login was successful
       if (ok) navigate(from, { replace: true });
     } catch {
-      // Handle error (network/server/etc.) with toast
+      // Show toast if an error occurred
       toast({
         title: "Login error",
         description: "An error occurred during login.",
         variant: "destructive",
       });
     } finally {
-      // Reset loading state regardless of outcome
+      // Reset loading state
       setIsLoading(false);
     }
   };
 
-  // Render JSX
+  // JSX render
   return (
-    // Full-screen container, centered vertically and horizontally
+    // Full-page container with light/dark background, centered contents
     <div className="min-h-screen bg-white dark:bg-neutral-900 flex flex-col items-center justify-center px-4">
       
-      {/* Logo section at the top */}
+      {/* Logo above the card */}
       <div className="text-center mb-4">
-        {/* MJ Home logo image */}
         <img
-          src="/Logo.JPG" // Logo image source
+          src="/Logo.JPG" // MJ Home logo
           alt="MJ HOME" // Accessible description
           className="mx-auto h-16 md:h-20 w-auto object-contain" // Responsive sizing
         />
       </div>
 
-      {/* Wrapper that contains the login card and background illustration */}
+      {/* Wrapper for card + illustration */}
       <div className="relative w-full max-w-md mx-auto">
         
-        {/* Background illustration image, positioned behind the login card */}
+        {/* Illustration image positioned behind the login card */}
         <img
-          src="/MJHOMESIGNUP2.jpg" // Illustration file
-          alt="Illustration" // Alt text for accessibility
+          src="/MJHOMESIGNUP2.jpg" // Background illustration
+          alt="Illustration"
           className="hidden md:block pointer-events-none select-none absolute right-full 
-                     top-1/2 -translate-y-[45%] translate-x-28
-                     w-[600px] lg:w-[680px] h-[422px] z-0" // Styling + positioning
-          loading="eager" // Hint browser to load eagerly
+                     top-1/2 -translate-y-[35%] translate-x-28
+                     w-[620px] h-[345px] z-0"
+          // - hidden on mobile, shown on md and up
+          // - pointer-events-none/select-none: can't interact or select
+          // - absolute right-full: placed to the left of the card
+          // - top-1/2 -translate-y-[35%]: vertically shifted downward
+          // - translate-x-28: shifted horizontally into the viewport
+          // - fixed width/height: 620px by 345px
+          // - z-0: placed behind the card
+          loading="eager" // loads immediately
         />
 
-        {/* Login card */}
+        {/* Login card container */}
         <Card className="relative z-10 bg-[#E9EBEE] dark:bg-neutral-800 rounded-md shadow-sm border-0">
           
-          {/* Card header with title + description */}
+          {/* Card header with welcome text */}
           <CardHeader className="text-center">
-            <CardTitle>Welcome</CardTitle> {/* Card title */}
-            <CardDescription> {/* Subtitle */}
+            <CardTitle>Welcome</CardTitle>
+            <CardDescription>
               Access your real estate analytics dashboard
             </CardDescription>
           </CardHeader>
 
-          {/* Card content: holds the login form */}
+          {/* Card content contains the login form */}
           <CardContent>
-            {/* Form for login */}
             <form onSubmit={handleLogin} className="space-y-4">
               
-              {/* Email input with icon */}
+              {/* Email input with mail icon */}
               <div className="relative">
-                {/* Mail icon inside input */}
                 <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
                 <Input
-                  type="email" // Email input type
-                  placeholder="Email Address" // Placeholder text
-                  className="pl-10" // Padding for icon
-                  value={loginData.email} // Controlled value
+                  type="email"
+                  placeholder="Email Address"
+                  className="pl-10" // padding so text doesn't overlap icon
+                  value={loginData.email}
                   onChange={(e) =>
-                    setLoginData({ ...loginData, email: e.target.value }) // Update state
+                    setLoginData({ ...loginData, email: e.target.value })
                   }
-                  required // Must be filled
-                  disabled={isLoading} // Disabled while loading
+                  required
+                  disabled={isLoading}
                 />
               </div>
 
-              {/* Password input with icon */}
+              {/* Password input with lock icon */}
               <div className="relative">
-                {/* Lock icon inside input */}
                 <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
                 <Input
-                  type="password" // Password input type
-                  placeholder="Password" // Placeholder text
-                  className="pl-10" // Padding for icon
-                  value={loginData.password} // Controlled value
+                  type="password"
+                  placeholder="Password"
+                  className="pl-10"
+                  value={loginData.password}
                   onChange={(e) =>
-                    setLoginData({ ...loginData, password: e.target.value }) // Update state
+                    setLoginData({ ...loginData, password: e.target.value })
                   }
-                  required // Must be filled
-                  disabled={isLoading} // Disabled while loading
+                  required
+                  disabled={isLoading}
                 />
               </div>
 
               {/* Submit button */}
               <Button
-                type="submit" // Submits form
-                className="w-full bg-[#F39200] hover:bg-[#dd7e00] text-white rounded-md" // Orange button styling
-                disabled={isLoading} // Disabled while loading
+                type="submit"
+                className="w-full bg-[#F39200] hover:bg-[#dd7e00] text-white rounded-md"
+                disabled={isLoading}
               >
-                {/* Show spinner if loading, else show text */}
                 {isLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin mr-2" /> {/* Spinner */}
-                    Signing In... {/* Loading text */}
+                    Signing In...
                   </>
                 ) : (
-                  "Sign In" // Default text
+                  "Sign In"
                 )}
               </Button>
 
-              {/* Footer under login form */}
+              {/* Footer below form */}
               <div className="text-center mt-4 space-y-1">
-                {/* Copyright notice */}
                 <p className="text-xs text-gray-600 dark:text-gray-300">
                   © 2025 – Developed by AUT students for academic R&amp;D
                   purposes. Internal use only.
                 </p>
-                {/* AUT logo */}
                 <img
-                  src="/AUT.jpg" // AUT logo file
-                  alt="AUT University" // Accessible description
-                  className="mx-auto h-12 w-auto object-contain" // Responsive, centered
+                  src="/AUT.jpg" // AUT logo
+                  alt="AUT University"
+                  className="mx-auto h-12 w-auto object-contain"
                 />
               </div>
             </form>
@@ -203,5 +203,5 @@ const Login = () => {
   );
 };
 
-// Export the Login component so it can be used in routing
+// Export Login component for routing use
 export default Login;
