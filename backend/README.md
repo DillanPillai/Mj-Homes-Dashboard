@@ -68,12 +68,24 @@ Reports from pipeline runs are saved under:
 
 
 
-# Tests ↔ User Story: Retrain Model
+# Test Driven Development Unit Testing:
 
-**User Story**  
+# User Story: Retrain Model
 As a system admin, I want to upload a dataset and retrain the rental price model so that predictions reflect the latest data.
 
 **How to run**  
-```bash
 pytest backend/tests/test_retrain_model.py -q
 pytest --cov=backend --cov-report=term-missing --junitxml=pytest-report.xml
+
+
+
+# User Story: Log each prediction with inputs and results
+
+**Tests**: `backend/tests/test_prediction_logging.py`
+- `test_logs_prediction_with_user_id` → logs payload, prediction, and header user id
+- `test_logs_prediction_with_default_user_id_when_missing` → logs with `"anonymous"`
+- `test_logger_not_called_on_validation_error` → no logging when 422
+
+**How to run**
+pytest backend/tests/test_prediction_logging.py -q
+pytest backend/tests/test_prediction_logging.py --cov=backend --cov-report=term-missing

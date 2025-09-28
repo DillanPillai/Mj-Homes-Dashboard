@@ -85,10 +85,9 @@ def test_future_predictions_use_latest_model(client):
     assert mp.exists(), "Model file should still exist after second retrain"
     size_b, mtime_b, sha_b = _file_sig(mp)
 
-    # Verify the model was updated (mtime increased)
+    # Verify the model was updated
     assert mtime_b >= mtime_a, f"Expected model mtime to increase: {mtime_b} >= {mtime_a}"
-    # Note: content/hash may be identical with tiny/collinear toy data—mtime is sufficient evidence here.
-
+    # content/hash may be identical with tiny/collinear toy data—mtime is sufficient evidence here.
 
 def test_upload_rejects_wrong_filetype_in_own_way(client):
     """
