@@ -1,13 +1,13 @@
 // src/pages/Login.tsx
 
-// Import React hooks for state and lifecycle control
+// Import React hooks for state management and side effects
 import { useState, useEffect } from "react";
 
-// Import Button component from your UI library
+// Import Button component from the UI library (shadcn/ui)
 import { Button } from "@/components/ui/button";
-// Import Input component from your UI library
+// Import Input component from the UI library
 import { Input } from "@/components/ui/input";
-// Import Card and its subcomponents for styled container
+// Import Card and its subcomponents for a styled container
 import {
   Card,
   CardContent,
@@ -16,182 +16,174 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-// Import icons from lucide-react (Mail, Lock, Loader2 spinner)
+// Import icons from lucide-react (Mail icon, Lock icon, Loader2 spinner)
 import { Mail, Lock, Loader2 } from "lucide-react";
 
-// Import authentication context (provides login and user state)
+// Import authentication context (provides login method and user state)
 import { useAuth } from "@/contexts/AuthContext";
-// Import custom toast hook (for showing notifications)
+// Import custom toast hook (used for notifications)
 import { useToast } from "@/hooks/use-toast";
-// Import navigation and location hooks from React Router
+// Import React Router hooks for navigation and location
 import { useNavigate, useLocation } from "react-router-dom";
 
 // Define the Login component
 const Login = () => {
-  // State: tracks whether login request is in progress (loading spinner)
+  // State: track whether login request is in progress (loading state)
   const [isLoading, setIsLoading] = useState(false);
 
-  // State: holds login form data (email and password)
+  // State: store login form data (email + password)
   const [loginData, setLoginData] = useState({ email: "", password: "" });
 
-  // Pull login function and current user from authentication context
+  // Extract login function and current user from authentication context
   const { login, user } = useAuth();
 
-  // Toast hook for displaying success/error messages
+  // Toast hook for showing notifications (success or error messages)
   const { toast } = useToast();
 
-  // Router helpers: navigate lets us redirect, location gives current path
+  // Router helpers: navigation and current route info
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Extract the "from" path (previous protected route), default to "/"
+  // Extract "from" path (redirect destination after login), fallback to "/"
   const from = (location.state as any)?.from?.pathname || "/";
 
-  // If user is already logged in, redirect them to the "from" page
+  // If user is already logged in, redirect them automatically
   useEffect(() => {
     if (user) navigate(from, { replace: true });
-  }, [user, from, navigate]); // Dependencies: runs when user, from, or navigate changes
+  }, [user, from, navigate]); // Run effect if user, from, or navigate changes
 
-  // Function: handles login form submission
+  // Function: handle login form submission
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); // Prevent default form submission (page reload)
-    setIsLoading(true); // Show loading state
+    e.preventDefault(); // Prevent default form behavior (page reload)
+    setIsLoading(true); // Show loading spinner
 
     try {
-      // Attempt login with email and password
+      // Attempt login using the AuthContext's login function
       const ok = await login(loginData.email, loginData.password);
 
-      // Show toast notification depending on success or failure
+      // Show notification depending on login result
       toast({
-        title: ok ? "Login successful" : "Login failed", // Title message
+        title: ok ? "Login successful" : "Login failed", // Success or failure message
         description: ok
-          ? "Welcome to MJ Home Dashboard!" // Success message
-          : "Please check your credentials and try again.", // Failure message
-        variant: ok ? "default" : "destructive", // Style: normal vs error
-        className: ok ? "bg-green-50 border-green-200 text-green-800" : "", // Extra styling for success
+          ? "Welcome to MJ Home Dashboard!" // Success text
+          : "Please check your credentials and try again.", // Failure text
+        variant: ok ? "default" : "destructive", // Styling for notification
+        className: ok ? "bg-green-50 border-green-200 text-green-800" : "", // Styling for success case
       });
 
-      // If login worked, redirect to "from" path
+      // If login succeeded, redirect to the "from" route
       if (ok) navigate(from, { replace: true });
     } catch {
-      // If an error occurred (server/network/etc.), show error toast
+      // Handle error (network/server/etc.) with toast
       toast({
         title: "Login error",
         description: "An error occurred during login.",
         variant: "destructive",
       });
     } finally {
-      // Stop loading state after request is done
+      // Reset loading state regardless of outcome
       setIsLoading(false);
     }
   };
 
-  // JSX return: renders the login page
+  // Render JSX
   return (
-    // Full screen container: centered layout, light/dark backgrounds
+    // Full-screen container, centered vertically and horizontally
     <div className="min-h-screen bg-white dark:bg-neutral-900 flex flex-col items-center justify-center px-4">
       
-      {/* Logo section at top */}
+      {/* Logo section at the top */}
       <div className="text-center mb-4">
-        {/* AUT / MJ Home logo image */}
+        {/* MJ Home logo image */}
         <img
-          src="/Logo.JPG" // Image source
+          src="/Logo.JPG" // Logo image source
           alt="MJ HOME" // Accessible description
-          className="mx-auto h-16 md:h-20 w-auto object-contain" // Centered, responsive sizing
+          className="mx-auto h-16 md:h-20 w-auto object-contain" // Responsive sizing
         />
       </div>
 
-      {/* Wrapper: contains the login card and illustration */}
+      {/* Wrapper that contains the login card and background illustration */}
       <div className="relative w-full max-w-md mx-auto">
         
-        {/* Background illustration image (positioned behind card) */}
+        {/* Background illustration image, positioned behind the login card */}
         <img
-  src="/MJHOMESIGNUP2.jpg"
-  alt="Illustration"
-  className="hidden md:block pointer-events-none select-none absolute right-full 
-             top-1/2 -translate-y-[45%] translate-x-28
-             w-[600px] lg:w-[680px] h-[424px] z-0"
-  loading="eager"
-/>
+          src="/MJHOMESIGNUP2.jpg" // Illustration file
+          alt="Illustration" // Alt text for accessibility
+          className="hidden md:block pointer-events-none select-none absolute right-full 
+                     top-1/2 -translate-y-[45%] translate-x-28
+                     w-[600px] lg:w-[680px] h-[422px] z-0" // Styling + positioning
+          loading="eager" // Hint browser to load eagerly
+        />
 
-
-        {/* Login card container */}
+        {/* Login card */}
         <Card className="relative z-10 bg-[#E9EBEE] dark:bg-neutral-800 rounded-md shadow-sm border-0">
           
-          {/* Card header: title + description */}
+          {/* Card header with title + description */}
           <CardHeader className="text-center">
-            {/* Card title */}
-            <CardTitle>Welcome</CardTitle>
-            {/* Subtitle/description */}
-            <CardDescription>
+            <CardTitle>Welcome</CardTitle> {/* Card title */}
+            <CardDescription> {/* Subtitle */}
               Access your real estate analytics dashboard
             </CardDescription>
           </CardHeader>
 
           {/* Card content: holds the login form */}
           <CardContent>
-            {/* Login form */}
+            {/* Form for login */}
             <form onSubmit={handleLogin} className="space-y-4">
               
-              {/* Email field with Mail icon */}
+              {/* Email input with icon */}
               <div className="relative">
-                {/* Mail icon positioned inside input */}
+                {/* Mail icon inside input */}
                 <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
-                {/* Input field for email */}
                 <Input
-                  type="email" // Input type = email
+                  type="email" // Email input type
                   placeholder="Email Address" // Placeholder text
-                  className="pl-10" // Padding left for icon space
-                  value={loginData.email} // Bound to loginData.email
+                  className="pl-10" // Padding for icon
+                  value={loginData.email} // Controlled value
                   onChange={(e) =>
-                    setLoginData({ ...loginData, email: e.target.value }) // Update state on change
+                    setLoginData({ ...loginData, email: e.target.value }) // Update state
                   }
-                  required // Field is required
-                  disabled={isLoading} // Disable while loading
+                  required // Must be filled
+                  disabled={isLoading} // Disabled while loading
                 />
               </div>
 
-              {/* Password field with Lock icon */}
+              {/* Password input with icon */}
               <div className="relative">
-                {/* Lock icon positioned inside input */}
+                {/* Lock icon inside input */}
                 <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
-                {/* Input field for password */}
                 <Input
-                  type="password" // Input type = password
+                  type="password" // Password input type
                   placeholder="Password" // Placeholder text
-                  className="pl-10" // Padding left for icon space
-                  value={loginData.password} // Bound to loginData.password
+                  className="pl-10" // Padding for icon
+                  value={loginData.password} // Controlled value
                   onChange={(e) =>
-                    setLoginData({ ...loginData, password: e.target.value }) // Update state on change
+                    setLoginData({ ...loginData, password: e.target.value }) // Update state
                   }
-                  required // Field is required
-                  disabled={isLoading} // Disable while loading
+                  required // Must be filled
+                  disabled={isLoading} // Disabled while loading
                 />
               </div>
 
-              {/* Login button */}
+              {/* Submit button */}
               <Button
-                type="submit" // Submit form on click
-                className="w-full bg-[#F39200] hover:bg-[#dd7e00] text-white rounded-md" // Styled orange button
-                disabled={isLoading} // Disable while loading
+                type="submit" // Submits form
+                className="w-full bg-[#F39200] hover:bg-[#dd7e00] text-white rounded-md" // Orange button styling
+                disabled={isLoading} // Disabled while loading
               >
-                {/* Show spinner while loading, else show text */}
+                {/* Show spinner if loading, else show text */}
                 {isLoading ? (
                   <>
-                    {/* Spinner icon */}
-                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                    {/* Loading text */}
-                    Signing In...
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" /> {/* Spinner */}
+                    Signing In... {/* Loading text */}
                   </>
                 ) : (
-                  // Default button text
-                  "Sign In"
+                  "Sign In" // Default text
                 )}
               </Button>
 
-              {/* Footer under form */}
+              {/* Footer under login form */}
               <div className="text-center mt-4 space-y-1">
-                {/* Copyright text */}
+                {/* Copyright notice */}
                 <p className="text-xs text-gray-600 dark:text-gray-300">
                   © 2025 – Developed by AUT students for academic R&amp;D
                   purposes. Internal use only.
@@ -200,7 +192,7 @@ const Login = () => {
                 <img
                   src="/AUT.jpg" // AUT logo file
                   alt="AUT University" // Accessible description
-                  className="mx-auto h-12 w-auto object-contain" // Centered, responsive sizing
+                  className="mx-auto h-12 w-auto object-contain" // Responsive, centered
                 />
               </div>
             </form>
@@ -211,5 +203,5 @@ const Login = () => {
   );
 };
 
-// Export component so it can be used in routes
+// Export the Login component so it can be used in routing
 export default Login;
