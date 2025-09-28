@@ -10,7 +10,6 @@ import pandas as pd
 import pytest
 from fastapi.testclient import TestClient
 
-
 def _seed_mockdata_xlsx(base_dir: Path):
     dp = base_dir / "data_processing"
     dp.mkdir(parents=True, exist_ok=True)
@@ -19,7 +18,7 @@ def _seed_mockdata_xlsx(base_dir: Path):
         "Bathrooms": [1, 2],
         "Suburb": ["Manurewa", "Epsom"],
         "Weekly Rent ($NZD)": [520, 900],
-        # floor_area is optional in retrain; your code defaults to 100 if missing
+        # code defaults to 100 if missing
     })
     (dp / "MockData.xlsx").unlink(missing_ok=True)
     df.to_excel(dp / "MockData.xlsx", index=False)
@@ -44,21 +43,20 @@ def client(tmp_path, monkeypatch):
     repo_root = Path(__file__).resolve().parents[2]       # .../Mj-Homes-Dashboard
     backend_src = repo_root / "backend"
 
-    # Copy backend/ into a temp dir so we don't mutate your real files
     workdir = Path(tempfile.mkdtemp(prefix="mjhomes_pytests_"))
     backend_tmp = workdir / "backend"
     shutil.copytree(backend_src, backend_tmp)
 
     old_cwd = Path.cwd()
-    os.chdir(backend_tmp)  # critical: relative Paths (data_processing/...) resolve here
+    os.chdir(backend_tmp) 
 
     # Seed dataset so ALLOWED_SUBURBS loads at import time
     _seed_mockdata_xlsx(backend_tmp)
 
-    # Point DB to a throwaway SQLite file so backend/db.py doesn't crash
+    # Point DB to a throwaway SQLite file so db.py doesn't crash
     monkeypatch.setenv("DATABASE_URL", "sqlite:///./test_py.db")
 
-    # Make `main.py` importable
+    # Make main.py importable
     sys.path.insert(0, str(backend_tmp))
 
     try:
@@ -66,7 +64,7 @@ def client(tmp_path, monkeypatch):
         app = getattr(app_module, "app")
         tc = TestClient(app)
 
-        # 🔧 Retrain here to avoid scope conflicts and ensure a model exists
+        # Retrain here to avoid scope conflicts and ensure a model exists
         r = tc.post("/retrain-model")
         assert r.status_code == 200, r.text
         assert r.json().get("status", "").lower() in {"done", "ok", "success"}
