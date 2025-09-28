@@ -28,7 +28,8 @@ def _seed_mockdata_xlsx(base_dir: Path):
 @pytest.fixture(scope="session", autouse=True)
 def _seed():
     import numpy as np, random
-    np.random.seed(42); random.seed(42)
+    np.random.seed(42)
+    random.seed(42)
 
 
 @pytest.fixture()
@@ -38,6 +39,7 @@ def client(tmp_path, monkeypatch):
     - cd into it so relative imports like `routers` / `services` resolve
     - set DATABASE_URL to a temp sqlite file before importing main
     - add backend_tmp to sys.path so `import main` works
+    - retrain the model once per test function so /predict always has a model
     """
     repo_root = Path(__file__).resolve().parents[2]       # .../Mj-Homes-Dashboard
     backend_src = repo_root / "backend"
@@ -62,7 +64,14 @@ def client(tmp_path, monkeypatch):
     try:
         app_module = importlib.import_module("main")
         app = getattr(app_module, "app")
-        yield TestClient(app)
+        tc = TestClient(app)
+
+        # 🔧 Retrain here to avoid scope conflicts and ensure a model exists
+        r = tc.post("/retrain-model")
+        assert r.status_code == 200, r.text
+        assert r.json().get("status", "").lower() in {"done", "ok", "success"}
+
+        yield tc
     finally:
         # cleanup
         if str(backend_tmp) in sys.path:

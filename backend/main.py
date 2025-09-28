@@ -212,7 +212,7 @@ async def predict_rental_price(request: Request, input_data: RentalInput = Body(
         prediction = model.predict(df_input)[0]
 
         user_id = request.headers.get("X-User-ID", "anonymous")
-        log_prediction(input_data.dict(), prediction, user_id)
+        log_prediction(input_data.model_dump(), prediction, user_id)
 
         return {"predicted_rent": round(float(prediction), 2)}
 
