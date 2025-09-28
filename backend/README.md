@@ -59,3 +59,21 @@ To support a new data source (e.g., a new CSV format, Excel sheet, or API):
 
 Reports from pipeline runs are saved under:  
 `backend/Machine_Learning_Model/reports/`
+
+
+
+
+
+
+
+
+
+# Tests ↔ User Story: Retrain Model
+
+**User Story**  
+As a system admin, I want to upload a dataset and retrain the rental price model so that predictions reflect the latest data.
+
+**How to run**  
+```bash
+pytest backend/tests/test_retrain_model.py -q
+pytest --cov=backend --cov-report=term-missing --junitxml=pytest-report.xml
