@@ -13,13 +13,11 @@ except ModuleNotFoundError:
     # when CWD is repo root
     from backend.data_processing.cleaner import prepare_features  # type: ignore
 
-# -----------------------------------------------------------------------------
 # Paths resolved relative to this file so CWD doesn't matter
-# -----------------------------------------------------------------------------
-_THIS_DIR = Path(__file__).resolve().parent                         # .../backend/Machine_Learning_Model
-_BACKEND_DIR = _THIS_DIR.parent                                     # .../backend
-_DATA_DIR = _BACKEND_DIR / "data_processing"                        # .../backend/data_processing
-_MODEL_PATH = _THIS_DIR / "rental_model.pkl"                        # .../backend/Machine_Learning_Model/rental_model.pkl
+_THIS_DIR = Path(__file__).resolve().parent                         
+_BACKEND_DIR = _THIS_DIR.parent                                 
+_DATA_DIR = _BACKEND_DIR / "data_processing"                        
+_MODEL_PATH = _THIS_DIR / "rental_model.pkl"                        
 
 # Public export so other modules can import without underscore
 MODEL_PATH = _MODEL_PATH
@@ -32,9 +30,7 @@ __all__ = [
     "predict_rent",
 ]
 
-# -----------------------------------------------------------------------------
 # Dataset helpers
-# -----------------------------------------------------------------------------
 def _pick_dataset_path() -> Path | None:
     """
     Choose MockData.xlsx or MockData.csv from data_processing (prefer the most
@@ -60,10 +56,7 @@ def _read_dataset(path: Path) -> pd.DataFrame:
         return pd.read_csv(path)
     raise ValueError(f"Unsupported dataset extension: {ext}")
 
-
-# -----------------------------------------------------------------------------
 # Model IO
-# -----------------------------------------------------------------------------
 def load_model():
     """
     Load the trained model from disk (returns None if it doesn't exist).
@@ -73,10 +66,7 @@ def load_model():
         return None
     return joblib.load(MODEL_PATH)
 
-
-# -----------------------------------------------------------------------------
 # Feature engineering & column alignment
-# -----------------------------------------------------------------------------
 def get_model_suburb_columns_from_data() -> list[str]:
     """
     Dynamically infer the one-hot suburb columns from the current dataset.
@@ -136,10 +126,7 @@ def prepare_input_dataframe(input_data) -> pd.DataFrame:
 
     return df
 
-
-# -----------------------------------------------------------------------------
 # Inference helper
-# -----------------------------------------------------------------------------
 def predict_rent(input_data) -> float | None:
     """
     Convenience wrapper:
