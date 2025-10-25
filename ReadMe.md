@@ -8,11 +8,11 @@ This is the main repository for the MJ Homes Dashboard, a property data analytic
 ```text
 Mj-Homes-Dashboard/
 │
-├──  backend/             FastAPI backend (ML, API endpoints)
-│   ├── 📄 main.py           App entry point
-│   ├── 📄 requirements.txt  Python dependencies
-│   ├── 📄 .gitignore        Ignore rules for backend files
-│   └── 📄 README.md         Backend setup and API usage
+├──  backend/              FastAPI backend (ML, API endpoints)
+│   ├──  main.py           App entry point
+│   ├──  requirements.txt  Python dependencies
+│   ├──  .gitignore        Ignore rules for backend files
+│   └──  README.md         Backend setup and API usage
 │
 ├──  frontend/             Frontend folder (optional / WIP) (NEED TO UPDATE)
 │

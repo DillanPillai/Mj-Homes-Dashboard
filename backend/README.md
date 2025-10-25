@@ -18,6 +18,10 @@ It exposes RESTful endpoints using **FastAPI** for:
 - A dataset file `MockData.xlsx` located at:  
   `backend/data_processing/MockData.xlsx`
 
+# Follow this link:
+https://docs.google.com/document/d/1xEVb7UzcwDebs0dvD-32FPjdkqJnDXUPjX5GE6Z7PPA/edit?tab=t.0
+
+Copy the local files in the root, frontend and backend folder before following the steps in the document or below:
 
 ## Backend Setup
 # 1. Navigate to the backend folder
@@ -30,10 +34,21 @@ python -m venv venv
 venv\Scripts\activate
 
 # macOS/Linux:
-source venv/bin/activate
+.\venv\Scripts\activate
 
-# 3. Install dependencies
+# 3. Install dependencies one at a time
+pip install --upgrade pip
+python.exe -m pip install --upgrade pip
 pip install -r requirements.txt
+
+# 4. Start the FastAPI server
+npm run dev
+
+
+
+# NOTE: Input the above if you’re entering the backend for the first time. After that, you can enter without it as many times as you wish later, as shown below: 
+# 1. Navigate to the backend folder
+cd backend
 
 # 4. Start the FastAPI server
 npm run dev
@@ -59,33 +74,3 @@ To support a new data source (e.g., a new CSV format, Excel sheet, or API):
 
 Reports from pipeline runs are saved under:  
 `backend/Machine_Learning_Model/reports/`
-
-
-
-
-
-
-
-
-
-# Test Driven Development Unit Testing:
-
-# User Story: Retrain Model
-As a system admin, I want to upload a dataset and retrain the rental price model so that predictions reflect the latest data.
-
-**How to run**  
-pytest backend/tests/test_retrain_model.py -q
-pytest --cov=backend --cov-report=term-missing --junitxml=pytest-report.xml
-
-
-
-# User Story: Log each prediction with inputs and results
-
-**Tests**: `backend/tests/test_prediction_logging.py`
-- `test_logs_prediction_with_user_id` → logs payload, prediction, and header user id
-- `test_logs_prediction_with_default_user_id_when_missing` → logs with `"anonymous"`
-- `test_logger_not_called_on_validation_error` → no logging when 422
-
-**How to run**
-pytest backend/tests/test_prediction_logging.py -q
-pytest backend/tests/test_prediction_logging.py --cov=backend --cov-report=term-missing
