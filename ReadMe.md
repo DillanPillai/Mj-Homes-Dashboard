@@ -16,7 +16,7 @@ Mj-Homes-Dashboard/
 │
 ├──  frontend/             Frontend folder (optional / WIP) (NEED TO UPDATE)
 │
-└──  ReadMe.md             Main project overview (this file)
+└──  README.md             Main project overview (this file)
 ```
 
 ---
@@ -55,7 +55,7 @@ Please follow the instructions in:
 
 ## Frontend Tech Stack
 
-- **Frontend**: TypeScript, Python
+- **Frontend**: TypeScript
 
 ---
 
@@ -84,7 +84,7 @@ Please follow the instructions in:
 
 ## Tech Stack
 
-- **Backend:** FastAPI, scikit-learn, pandas, Pydantic
+- **Backend:** FastAPI, scikit-learn, pandas, Pydantic, Python programming language
 - **Environment Management:** `venv`, `.env`, `requirements.txt`
 - **Data Format:** Excel (`.xlsx`)
 
