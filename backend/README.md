@@ -24,10 +24,22 @@ https://docs.google.com/document/d/1xEVb7UzcwDebs0dvD-32FPjdkqJnDXUPjX5GE6Z7PPA/
 Copy the local files in the root, frontend and backend folder before following the steps in the document or below:
 
 ## Backend Setup
-# 1. Navigate to the backend folder
+
+# 1. Create a local .env file in the backend folder with the below code:
+DATABASE_URL=sqlite:///./temp.db
+API_KEY=your_api_key_here
+MODEL_PATH=Machine_Learning_Model/rental_model.pkl
+LOG_PATH=Machine_Learning_Model/prediction_logs.csv
+DEFAULT_PROVIDER=mock
+ENABLE_INGEST_SCHEDULER=false
+JWT_SECRET=please_change_me_in_prod
+JWT_ALGO=HS256
+JWT_EXPIRE_MIN=60
+
+# 2. Navigate to the backend folder
 cd backend
 
-# 2. Create and activate your virtual environment (only once)
+# 3. Create and activate your virtual environment (only once)
 python -m venv venv
 
 # Windows:
@@ -36,7 +48,7 @@ venv\Scripts\activate
 # macOS/Linux:
 .\venv\Scripts\activate
 
-# 3. Install dependencies one at a time
+# 3. Install dependencies (only once)
 pip install --upgrade pip
 python.exe -m pip install --upgrade pip
 pip install -r requirements.txt
@@ -47,6 +59,7 @@ npm run dev
 
 
 # NOTE: Input the above if you’re entering the backend for the first time. After that, you can enter without it as many times as you wish later, as shown below: 
+
 # 1. Navigate to the backend folder
 cd backend
 
