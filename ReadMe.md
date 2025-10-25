@@ -66,12 +66,12 @@ Please follow the instructions in:
 1. Clone the repository:
     
     ```bash
-    git clone https://github.com/yourusername/mj-homes-dashboard.git
+    git clone https://github.com/DillanPillai/Mj-Homes-Dashboard.git
     cd mj-homes-dashboard
     ```
 
 2. Follow backend setup instructions in `backend/README.md`
-3. Access the API documentation at `http://127.0.0.1:8000/docs` or `http://localhost:8000/docs` 
+3. Access the API documentation at `http://localhost:8000/docs` or `http://127.0.0.1:8000/docs`
 
 ## API Endpoints
 
