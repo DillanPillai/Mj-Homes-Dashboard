@@ -51,7 +51,7 @@ VITE_FIREBASE_MEASUREMENT_ID=G-M3WHD6DNS8
 ## Frontend Setup
 
 Please follow the instructions in:  
-[`backend/README.md`](./frontend/dashboard/README.md)
+[`frontend\dashboard\README.md`](./frontend/dashboard/README.md)
 
 ## Frontend Tech Stack
 
@@ -62,7 +62,7 @@ Please follow the instructions in:
 ## Backend Setup
 
 Please follow the instructions in:  
-[`backend/README.md`](./backend/README.md)
+[`backend\README.md`](./backend/README.md)
 
 1. Follow backend setup instructions in `backend/README.md`
 2. Access the API documentation at `http://localhost:8000/docs` or `http://127.0.0.1:8000/docs`
