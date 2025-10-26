@@ -10,12 +10,12 @@ from sklearn.metrics import mean_squared_error
 
 def _pick_dataset_path() -> Path | None:
     """
-    Look for MockData.xlsx or MockData.csv under backend/data_processing.
+    Look for FinalisedDataset.xlsx or FinalisedDataset.csv under backend/data_processing.
     If both exist, use the one most recently modified.
     """
     data_dir = Path("data_processing")
-    xlsx = data_dir / "MockData.xlsx"
-    csvp = data_dir / "MockData.csv"
+    xlsx = data_dir / "FinalisedDataset.xlsx"
+    csvp = data_dir / "FinalisedDataset.csv"
 
     if xlsx.exists() and csvp.exists():
         return xlsx if xlsx.stat().st_mtime >= csvp.stat().st_mtime else csvp
@@ -40,13 +40,13 @@ def _load_dataset(path: Path) -> pd.DataFrame:
 
 def retrain_rent_model():
     """
-    Retrain the rental price model using the most recent MockData.(xlsx|csv).
+    Retrain the rental price model using the most recent FinalisedDataset.(xlsx|csv).
     Accepts either format without changing the upload flow.
     """
     try:
         src_path = _pick_dataset_path()
         if not src_path:
-            return "Error: Neither MockData.xlsx nor MockData.csv found in data_processing/."
+            return "Error: Neither FinalisedDataset.xlsx nor FinalisedDataset.csv found in data_processing/."
 
         # Load dataset
         df = _load_dataset(src_path)

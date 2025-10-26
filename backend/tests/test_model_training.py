@@ -6,10 +6,10 @@
 # from backend.Machine_Learning_Model.rental_price_model import load_model
 
 
-# def test_mockdata_exists():
+# def test_finaliseddataset_exists():
     # """Ensure the dataset file exists before retraining."""
-    # path = os.path.join("backend", "data_processing", "MockData.xlsx")
-    # assert os.path.exists(path), "MockData.xlsx not found"
+    # path = os.path.join("backend", "data_processing", "FinalisedDataset.xlsx")
+    # assert os.path.exists(path), "FinalisedDataset.xlsx not found"
 
 
 # def test_model_retrain_success():

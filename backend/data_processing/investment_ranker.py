@@ -30,7 +30,7 @@ def rank_top_suburbs(df, top_n=10):
     print(ranked[["Suburb", "Weekly Rent ($NZD)", "Days on Market", "Bedrooms", "Listing Type"]].head(top_n))
 
 def main():
-    file_path = "Backend/data_processing/MockData.xlsx"  # Path relative to root
+    file_path = "backend/data_processing/FinalisedDataset.xlsx"  # Path relative to root
     df = load_property_data(file_path)
 
     if df is not None:

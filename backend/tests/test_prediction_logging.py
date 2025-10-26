@@ -17,7 +17,7 @@ def _retrain_once(client):
 
 
 def _valid_payload():
-    # Matches suburbs seeded by tests/conftest.py (_seed_mockdata_xlsx)
+    # Matches suburbs seeded by tests/conftest.py (_seed_finaliseddataset_xlsx)
     return {"bedrooms": 3, "bathrooms": 2, "floor_area": 90, "suburb": "Epsom"}
 
 

@@ -8,8 +8,8 @@ import joblib
 
 def _pick_dataset_path() -> Path | None:
     data_dir = Path("data_processing")
-    xlsx = data_dir / "MockData.xlsx"
-    csvp = data_dir / "MockData.csv"
+    xlsx = data_dir / "FinalisedDataset.xlsx"
+    csvp = data_dir / "FinalisedDataset.csv"
     if xlsx.exists() and csvp.exists():
         return xlsx if xlsx.stat().st_mtime >= csvp.stat().st_mtime else csvp
     if xlsx.exists():
@@ -20,7 +20,7 @@ def _pick_dataset_path() -> Path | None:
 
 src = _pick_dataset_path()
 if not src:
-    raise SystemExit("No MockData.xlsx or MockData.csv found in data_processing/")
+    raise SystemExit("No FinalisedDataset.xlsx or FinalisedDataset.csv found in data_processing/")
 
 df = pd.read_excel(src) if src.suffix.lower() == ".xlsx" else pd.read_csv(src)
 

@@ -1,8 +1,8 @@
 import pandas as pd
 
 def scrape_listings():
-    print("Loading mock listings from Excel...")
-    path = "Backend/data_processing/MockData.xlsx"
+    print("Loading finalised dataset listings from Excel...")
+    path = "backend/data_processing/FinalisedDataset.xlsx"
     try:
         df = pd.read_excel(path)
         return df

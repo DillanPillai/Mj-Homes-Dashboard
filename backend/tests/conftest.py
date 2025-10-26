@@ -10,7 +10,7 @@ import pandas as pd
 import pytest
 from fastapi.testclient import TestClient
 
-def _seed_mockdata_xlsx(base_dir: Path):
+def _seed_finaliseddataset_xlsx(base_dir: Path):
     dp = base_dir / "data_processing"
     dp.mkdir(parents=True, exist_ok=True)
     df = pd.DataFrame({
@@ -20,8 +20,8 @@ def _seed_mockdata_xlsx(base_dir: Path):
         "Weekly Rent ($NZD)": [520, 900],
         # code defaults to 100 if missing
     })
-    (dp / "MockData.xlsx").unlink(missing_ok=True)
-    df.to_excel(dp / "MockData.xlsx", index=False)
+    (dp / "FinalisedDataset.xlsx").unlink(missing_ok=True)
+    df.to_excel(dp / "FinalisedDataset.xlsx", index=False)
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -51,7 +51,7 @@ def client(tmp_path, monkeypatch):
     os.chdir(backend_tmp) 
 
     # Seed dataset so ALLOWED_SUBURBS loads at import time
-    _seed_mockdata_xlsx(backend_tmp)
+    _seed_finaliseddataset_xlsx(backend_tmp)
 
     # Point DB to a throwaway SQLite file so db.py doesn't crash
     monkeypatch.setenv("DATABASE_URL", "sqlite:///./test_py.db")

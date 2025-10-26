@@ -101,11 +101,11 @@ app.add_middleware(
 )
 
 # Allowed suburbs loader (CSV/XLSX)
-_xlsx = Path("data_processing") / "MockData.xlsx"
-_csv = Path("data_processing") / "MockData.csv"
+_xlsx = Path("data_processing") / "FinalisedDataset.xlsx"
+_csv = Path("data_processing") / "FinalisedDataset.csv"
 
 if not _xlsx.exists() and not _csv.exists():
-    raise FileNotFoundError("Neither MockData.xlsx nor MockData.csv found in data_processing/")
+    raise FileNotFoundError("Neither FinalisedDataset.xlsx nor FinalisedDataset.csv found in data_processing/")
 
 try:
     if _xlsx.exists() and (not _csv.exists() or _xlsx.stat().st_mtime >= _csv.stat().st_mtime):
@@ -175,8 +175,8 @@ async def upload_data(file: UploadFile = File(...)):
         if not (filename.endswith(".xlsx") or filename.endswith(".csv")):
             return {"status": "error", "message": "Invalid file format. Please upload an Excel .xlsx or a .csv file."}
 
-        # Save to MockData.xlsx or MockData.csv
-        save_path = Path("data_processing") / ("MockData.xlsx" if filename.endswith(".xlsx") else "MockData.csv")
+        # Save to FinalisedDataset.xlsx or FinalisedDataset.csv
+        save_path = Path("data_processing") / ("FinalisedDataset.xlsx" if filename.endswith(".xlsx") else "FinalisedDataset.csv")
         save_path.parent.mkdir(parents=True, exist_ok=True)
 
         logger.info("[UPLOAD] Saving uploaded file to %s", save_path)

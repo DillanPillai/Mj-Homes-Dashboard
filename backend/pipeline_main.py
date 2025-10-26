@@ -151,6 +151,6 @@ def main():
 if __name__ == "__main__":
     # Handy manual test against a local file if you want:
     try:
-        print(run("backend/data_processing/MockData.xlsx"))
+        print(run("backend/data_processing/FinalisedDataset.xlsx"))
     except Exception as e:
         print(f"Run error: {e}")

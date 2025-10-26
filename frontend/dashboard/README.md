@@ -63,3 +63,7 @@ cd dashboard
 
 # 4. Start the FastAPI server
 npm run dev
+
+# 5. Login details for the frontend
+Email Address: testing@testing.com
+Password: 123456

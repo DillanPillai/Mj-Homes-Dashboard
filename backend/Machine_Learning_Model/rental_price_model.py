@@ -33,11 +33,11 @@ __all__ = [
 # Dataset helpers
 def _pick_dataset_path() -> Path | None:
     """
-    Choose MockData.xlsx or MockData.csv from data_processing (prefer the most
+    Choose FinalisedDataset.xlsx or FinalisedDataset.csv from data_processing (prefer the most
     recently modified file). This keeps prediction in sync with retraining.
     """
-    xlsx = _DATA_DIR / "MockData.xlsx"
-    csvp = _DATA_DIR / "MockData.csv"
+    xlsx = _DATA_DIR / "FinalisedDataset.xlsx"
+    csvp = _DATA_DIR / "FinalisedDataset.csv"
 
     if xlsx.exists() and csvp.exists():
         return xlsx if xlsx.stat().st_mtime >= csvp.stat().st_mtime else csvp
