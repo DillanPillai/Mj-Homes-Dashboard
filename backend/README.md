@@ -66,6 +66,11 @@ cd backend
 # 4. Start the FastAPI server
 npm run dev
 
+# 5. Use these links to access the backend:
+http://127.0.0.1:8000/docs
+http://localhost:8000/docs 
+
+
 
 ## Modular Data Pipeline
 
