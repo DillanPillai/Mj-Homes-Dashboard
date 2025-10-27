@@ -14,7 +14,10 @@ Mj-Homes-Dashboard/
 │   ├──  .gitignore        Ignore rules for backend files
 │   └──  README.md         Backend setup and API usage
 │
-├──  frontend/             Frontend folder (optional / WIP) (NEED TO UPDATE)
+├──  frontend/             Frontend folder
+│   ├──  requirements.txt  Typescript dependencies
+│   ├──  .gitignore        Ignore rules for frontend files
+│   └──  README.md         Frontend setup and API usage
 │
 └──  README.md             Main project overview (this file)
 ```
@@ -25,8 +28,6 @@ Mj-Homes-Dashboard/
 
 # 1. Clone the repository:
 Copy the website URL: https://github.com/DillanPillai/Mj-Homes-Dashboard.git and clone it to your GitHub desktop application. After that, fetch origin from the main folder and open the folder in Visual Studio Code. 
-
-
 
 ---
 
@@ -74,28 +75,3 @@ Please follow the instructions in:
 
 - All rental price predictions require a valid suburb name that exists in the uploaded dataset.
 - Suburb values are validated dynamically — no hardcoded lists.
-
----
-
-## Future Roadmap
-
-- [ ]  Advanced analytics features
-- [ ]  Multi-property comparison tools
-- [ ]  Historical price trend analysis
-- [ ]  Social Media Analytics Display
-
-## Contributing
-
-1. Fork the repository  
-2. Create a feature branch (`git checkout -b feature/example-feature`)  
-3. Commit your changes (`git commit -m 'Add example feature'`)  
-4. Push to the branch (`git push origin feature/example-feature`)  
-5. Open a Pull Request  
-
-## Support
-
-For questions or support, please open an issue in this repository.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](https://www.github.com/) file for details.
